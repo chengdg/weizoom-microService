@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""@package eaglet.core.watchdog.utils
+"""@package eaglet.core.watchdog
 
 Watchdog接口
 需要settings里面配置SERVICE_NAME和设置logging格式
@@ -20,27 +20,27 @@ ERROR = 4
 ALERT = 5
 logger = logging.getLogger(settings.SERVICE_NAME)
 
-def watchdog_debug(message, log_type='WEB', user_id='0'):
-	__watchdog(DEBUG, message, log_type, user_id='0')
+def debug(message, log_type='WEB', user_id='0'):
+	__watchdog(DEBUG, message, log_type, user_id)
 
 
-def watchdog_info(message, log_type='WEB', user_id='0'):
-	__watchdog(INFO, message, log_type, user_id='0')
+def info(message, log_type='WEB', user_id='0'):
+	__watchdog(INFO, message, log_type, user_id)
 
 
-def watchdog_warning(message, log_type='WEB', user_id='0'):
-	__watchdog(WARNING, message, log_type, user_id='0')
+def warning(message, log_type='WEB', user_id='0'):
+	__watchdog(WARNING, message, log_type, user_id)
 
 
-def watchdog_error(message, log_type='WEB', user_id='0'):
-	__watchdog(ERROR, message, log_type, user_id='0')
+def error(message, log_type='WEB', user_id='0'):
+	__watchdog(ERROR, message, log_type, user_id)
 
 
-def watchdog_alert(message, log_type='WEB', user_id='0'):
-	__watchdog(ALERT, message, log_type, user_id='0')
+def alert(message, log_type='WEB', user_id='0'):
+	__watchdog(ALERT, message, log_type, user_id)
 
 
-def __watchdog(level, message, log_type, user_id='0'):
+def __watchdog(level, message, log_type, user_id):
 	"""
 	@param[in] level 日志级别
 	@param[in] message 日志信息，通常是json格式
