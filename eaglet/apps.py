@@ -8,7 +8,12 @@ import falcon
 from eaglet.core import api_resource
 from eaglet.core.exceptionutil import unicode_full_stack
 import settings
-import api.resources
+
+try:
+	import api.resources
+except:
+	pass
+
 import wapi as wapi_resource
 from core.db import models
 
