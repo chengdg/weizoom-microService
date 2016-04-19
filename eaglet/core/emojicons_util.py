@@ -8,7 +8,7 @@ encode_emojicons_for_html 处理字符串，解码出包含的表情icon并做ht
 """
 
 from core.emojicons import UTF82EMOJIICONS
-from utils.string_util import byte_to_hex, hex_to_byte
+from eaglet.utils.string_util import byte_to_hex, hex_to_byte
 
 from core.watchdog.utils import watchdog_warning
 
