@@ -38,6 +38,8 @@ from inspect import isclass
 
 import settings
 
+from eaglet.core.zipkin import zipkin_client
+
 __version__ = '2.6.4'
 __all__ = [
     'BareField',
@@ -3406,12 +3408,18 @@ class Database(object):
                 if require_commit and self.get_autocommit():
                     self.commit()
             finally:
+                from eaglet.utils.stack_util import get_trace_back
+                stop = time()
+                duration = stop - start
+                sql = sql % tuple(params)
+                zipkin_client.zipkinClient.sendMessge(zipkin_client.TYPE_CALL_MYSQL, duration, method='', resource=sql, data=get_trace_back())
+
                 if settings.DEBUG:
                     try:
-                        from eaglet.utils.stack_util import get_trace_back
-                        stop = time()
-                        duration = stop - start
-                        sql = sql % tuple(params)
+                        
+                        # stop = time()
+                        # duration = stop - start
+                        # sql = sql % tuple(params)
                         QUERIES.append({
                             'source': 'mysql',
                             'query': sql,

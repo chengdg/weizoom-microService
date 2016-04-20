@@ -19,12 +19,12 @@ class ZipkinClient(object):
 		self.service = settings.SERVICE_NAME
 		print ">>>>>>>>>>>"
 
-	def sendMessge(self, type, responseTime, method='', resouuce='', data='', isCallDownstream=0):
+	def sendMessge(self, type, responseTime, method='', resource='', data='', isCallDownstream=0):
 		self.zindex += 1
 		self.type = type
 		self.responseTime = responseTime
 		self.method = method
-		self.resouuce = resouuce
+		self.resource = resource
 		self.data = data
 		self.isCallDownstream = isCallDownstream
 
@@ -42,7 +42,7 @@ class ZipkinClient(object):
 			"zindex": self.zindex,
 			"isCallDownstream": self.isCallDownstream,
 			"responseTime": self.responseTime,
-			"resouuce": self.resouuce,
+			"resource": self.resource,
 			"method": self.method,
 			"data": self.data,
 		}
