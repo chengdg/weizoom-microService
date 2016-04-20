@@ -101,12 +101,11 @@ def set_cache_wrapper(key, value, timeout=0):
 	finally:
 		stop = time()
 		duration = stop - start
+		value_type = str(type(value)).replace('<', '&lt;').replace('>', '&gt;')
 		query = 'set `cache`: {`%s`: `%s`)' % (key, value_type)
 		if zipkin_client.zipkinClient:
 			zipkin_client.zipkinClient.sendMessge(zipkin_client.TYPE_CALL_REDIS, duration, method='', resource=query, data='')
-
-
-		value_type = str(type(value)).replace('<', '&lt;').replace('>', '&gt;')
+		
 		CACHE_QUERIES.append({
 			'source': 'redis',
 			'query': query,
@@ -186,11 +185,11 @@ def delete_cache_wrapper():
 		value = 'delete_cache_wrapper'
 		stop = time()
 		duration = stop - start
+		value_type = str(type(value)).replace('<', '&lt;').replace('>', '&gt;')
 		query = 'delete `cache`: {`%s`: `%s`)' % (key, value_type)
 		if zipkin_client.zipkinClient:
 			zipkin_client.zipkinClient.sendMessge(zipkin_client.TYPE_CALL_REDIS, duration, method='', resource=query, data='')
 		
-		value_type = str(type(value)).replace('<', '&lt;').replace('>', '&gt;')
 		CACHE_QUERIES.append({
 			'source': 'redis',
 			'query': query,
@@ -216,7 +215,6 @@ def delete_pattern_wrapper(pattern):
 		if zipkin_client.zipkinClient:
 			zipkin_client.zipkinClient.sendMessge(zipkin_client.TYPE_CALL_REDIS, duration, method='', resource=query, data='')
 
-		value_type = str(type(value)).replace('<', '&lt;').replace('>', '&gt;')
 		CACHE_QUERIES.append({
 			'source': 'redis',
 			'query': query,
