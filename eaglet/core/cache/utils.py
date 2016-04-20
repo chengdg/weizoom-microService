@@ -20,6 +20,8 @@ import settings
 from ..exceptionutil import unicode_full_stack
 from eaglet.utils.stack_util import get_trace_back
 
+from eaglet.core.zipkin import zipkin_client
+
 if settings.REDIS_HOST:
 	r = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_CACHES_DB)
 else:
@@ -99,10 +101,15 @@ def set_cache_wrapper(key, value, timeout=0):
 	finally:
 		stop = time()
 		duration = stop - start
+		query = 'set `cache`: {`%s`: `%s`)' % (key, value_type)
+		if zipkin_client.zipkinClient:
+			zipkin_client.zipkinClient.sendMessge(zipkin_client.TYPE_CALL_REDIS, duration, method='', resource=query, data='')
+
+
 		value_type = str(type(value)).replace('<', '&lt;').replace('>', '&gt;')
 		CACHE_QUERIES.append({
 			'source': 'redis',
-			'query': 'set `cache`: {`%s`: `%s`)' % (key, value_type),
+			'query': query,
 			'time': "%.3f" % duration,
 			'stack': get_trace_back()
 		})
@@ -128,9 +135,12 @@ def get_cache_wrapper(key):
 	finally:
 		stop = time()
 		duration = stop - start
+		query = 'get `cache`: `%s` =&gt; %s' % (key, 'hit' if success else 'MISS!!')
+		if zipkin_client.zipkinClient:
+			zipkin_client.zipkinClient.sendMessge(zipkin_client.TYPE_CALL_REDIS, duration, method='', resource=query, data='')
 		CACHE_QUERIES.append({
 			'source': 'redis',
-			'query': 'get `cache`: `%s` =&gt; %s' % (key, 'hit' if success else 'MISS!!'),
+			'query': query,
 			'time': "%.3f" % duration,
 			'stack': get_trace_back()
 		})
@@ -152,9 +162,12 @@ def get_many_wrapper(keys):
 	finally:
 		stop = time()
 		duration = stop - start
+		query = 'get_many from `cache`: `%s` =&gt; %s' % (keys, 'hit' if success else 'MISS!!')
+		if zipkin_client.zipkinClient:
+			zipkin_client.zipkinClient.sendMessge(zipkin_client.TYPE_CALL_REDIS, duration, method='', resource=query, data='')
 		CACHE_QUERIES.append({
 			'source': 'redis',
-			'query': 'get_many from `cache`: `%s` =&gt; %s' % (keys, 'hit' if success else 'MISS!!'),
+			'query': query,
 			'time': "%.3f" % duration,
 			'stack': get_trace_back()
 		})
@@ -173,10 +186,14 @@ def delete_cache_wrapper():
 		value = 'delete_cache_wrapper'
 		stop = time()
 		duration = stop - start
+		query = 'delete `cache`: {`%s`: `%s`)' % (key, value_type)
+		if zipkin_client.zipkinClient:
+			zipkin_client.zipkinClient.sendMessge(zipkin_client.TYPE_CALL_REDIS, duration, method='', resource=query, data='')
+		
 		value_type = str(type(value)).replace('<', '&lt;').replace('>', '&gt;')
 		CACHE_QUERIES.append({
 			'source': 'redis',
-			'query': 'delete `cache`: {`%s`: `%s`)' % (key, value_type),
+			'query': query,
 			'time': "%.3f" % duration,
 			'stack': get_trace_back()
 		})
@@ -195,10 +212,14 @@ def delete_pattern_wrapper(pattern):
 		value = 'delete_pattern_wrapper'
 		stop = time()
 		duration = stop - start
+		query = 'delete_pattern from `cache`: `%s`' % pattern
+		if zipkin_client.zipkinClient:
+			zipkin_client.zipkinClient.sendMessge(zipkin_client.TYPE_CALL_REDIS, duration, method='', resource=query, data='')
+
 		value_type = str(type(value)).replace('<', '&lt;').replace('>', '&gt;')
 		CACHE_QUERIES.append({
 			'source': 'redis',
-			'query': 'delete_pattern from `cache`: `%s`' % pattern,
+			'query': query,
 			'time': "%.3f" % duration,
 			'stack': get_trace_back()
 		})
