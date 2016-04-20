@@ -8,6 +8,12 @@ TYPE_CALL_SERVICE = 3
 TYPE_CALL_REDIS = 1
 TYPE_CALL_MYSQL = 2
 
+TYPE2STRING = {
+	TYPE_CALL_MYSQL: 'call_mysql',
+	TYPE_CALL_REDIS: 'call_redis',
+	TYPE_CALL_SERVICE: 'call_service'
+}
+
 class ZipkinClient(object):
 	"""docstring for ZipkinClient"""
 	def __init__(self, zid, zdepth):
@@ -21,7 +27,7 @@ class ZipkinClient(object):
 
 	def sendMessge(self, type, responseTime, method='', resource='', data='', isCallDownstream=0):
 		self.zindex += 1
-		self.type = type
+		self.type = TYPE2STRING[int(type)]
 		self.responseTime = responseTime
 		self.method = method
 		self.resource = resource
