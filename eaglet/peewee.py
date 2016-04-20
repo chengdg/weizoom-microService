@@ -3411,7 +3411,8 @@ class Database(object):
                 stop = time()
                 duration = stop - start
                 sql = sql % tuple(params)
-                zipkin_client.zipkinClient.sendMessge(zipkin_client.TYPE_CALL_MYSQL, duration, method='', resource=sql, data='')
+                if zipkin_client.zipkinClient:
+                    zipkin_client.zipkinClient.sendMessge(zipkin_client.TYPE_CALL_MYSQL, duration, method='', resource=sql, data='')
 
                 if settings.DEBUG:
                     try:
