@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import settings
-from core.zipkin import zipkin_client
+from eaglet.core.zipkin import zipkin_client
 
 class ZipkinMiddleware(object):
 	"""docstring for ZipkinMiddleware"""
