@@ -6,7 +6,7 @@ import settings
 
 from eaglet.core.service.celery import task
 import json
-from wapi.logger.mongo_logger import MongoAPILogger
+from eaglet.wapi.logger.mongo_logger import MongoAPILogger
 import logging
 from eaglet.core.exceptionutil import full_stack
 
