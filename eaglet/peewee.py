@@ -35,6 +35,7 @@ except ImportError:
 from copy import deepcopy
 from functools import wraps
 from inspect import isclass
+from eaglet.utils.stack_util import get_trace_back
 
 import settings
 
@@ -3416,16 +3417,16 @@ class Database(object):
 
                 if settings.DEBUG:
                     try:
-                        from eaglet.utils.stack_util import get_trace_back
-                        # stop = time()
-                        # duration = stop - start
-                        # sql = sql % tuple(params)
-                        QUERIES.append({
-                            'source': 'mysql',
-                            'query': sql,
-                            'time': "%.3f" % duration,
-                            'stack': get_trace_back()
-                        })
+                        if settings.MODE == 'develop':
+                            # stop = time()
+                            # duration = stop - start
+                            # sql = sql % tuple(params)
+                            QUERIES.append({
+                                'source': 'mysql',
+                                'query': sql,
+                                'time': "%.3f" % duration,
+                                'stack': get_trace_back()
+                            })
                         logger.debug((sql, params))
                     except Exception as e:
                         print '========== sql record exception =========='
