@@ -7,7 +7,7 @@ import functools
 import math
 import time
 import uuid
-
+import logging
 import redis
 
 from eaglet.core.cache.utils import r
@@ -16,10 +16,14 @@ from eaglet.core import watchdog
 
 DEFAULT_CONN = r    # 默认连接
 DEFAULT_ACQUIRE_DELAY = 0.001   # 默认申请锁尝试时间时的延迟，单位秒
-DEFAULT_TIMEOUT = 3  # 默认锁超时时间，单位秒
+DEFAULT_TIMEOUT = 30  # 默认锁超时时间，单位秒
 DEFAULT_ACQUIRE_TIME = 0    # 默认申请锁尝试时间，单位秒
 
-from setting import REGISTERED_LOCK_NAMES
+try:
+	from settings import REGISTERED_LOCK_NAMES
+except ImportError as e:
+	logging.info('RedisLock Warning: No REGISTERED_LOCK_NAMES in settings')
+
 
 # Todo EVALSHA命令节省带宽
 UNLOCK_SCRIPT = """
