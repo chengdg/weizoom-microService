@@ -16,9 +16,8 @@ import settings
 logging.info("init celery")
 app = Celery('apiserver')
 logging.info("loaded `celeryconfig`")
-app.config_from_object('core.service.celeryconfig')
+app.config_from_object('eaglet.core.service.celeryconfig')
 app.autodiscover_tasks(lambda: settings.INSTALLED_TASKS)
-
 celery_app  = app
 task = celery_task = app.task
 
