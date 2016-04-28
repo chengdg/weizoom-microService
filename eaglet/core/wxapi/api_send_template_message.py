@@ -5,7 +5,7 @@ __author__ = 'paco bert'
 import json
 from eaglet.utils.url_helper import complete_get_request_url
 import api_settings
-from eaglet.core.util import *
+from eaglet.core.wxapi.util import *
 from custom_message import build_custom_message_json_str, TextCustomMessage
 
 """"
