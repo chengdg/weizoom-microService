@@ -4,7 +4,7 @@ __author__ = 'paco bert'
 
 from eaglet.utils.url_helper import complete_get_request_url
 import api_settings
-from eaglet.core.util import ObjectAttrWrapedInDict
+from eaglet.core.wxapi.util import ObjectAttrWrapedInDict
 """"
 	调用用户信息api:
 	http请求方式: GET
