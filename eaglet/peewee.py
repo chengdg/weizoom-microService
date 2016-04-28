@@ -3400,8 +3400,8 @@ class Database(object):
 
     def execute_sql(self, sql, params=None, require_commit=True):
         with self.exception_wrapper():
-            if settings.DEBUG:
-                start = time()
+            #if settings.DEBUG:
+            start = time()
             cursor = self.get_cursor()
             try:
                 cursor.execute(sql, params or ())
