@@ -49,7 +49,10 @@ def _default(obj):
 		return obj.strftime('%Y-%m-%d') 
 	elif isinstance(obj, decimal.Decimal):
 		return str(obj)
-	elif settings.DEBUG and isinstance(obj, models.Model):
+	# elif settings.DEBUG and isinstance(obj, models.Model):
+	# 	return obj.to_dict()
+	# todo 删除
+	elif isinstance(obj, business_model):
 		return obj.to_dict()
 	else: 
 		raise TypeError('%r is not JSON serializable (type %s)' % (obj, type(obj)))
