@@ -3400,7 +3400,7 @@ class Database(object):
             cursor = self.get_cursor()
             try:
                 cursor.execute(sql, params or ())
-                cursor.commit()
+                self.commit()
             except Exception as exc:
                 if self.get_autocommit() and self.autorollback:
                     self.rollback()
