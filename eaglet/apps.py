@@ -11,7 +11,7 @@ import settings
 import api.resources
 import wapi as wapi_resource
 from core.db import models
-
+from business.model import Model as business_model # 临时兼容线上几个有问题的订单
 class ThingsResource:
 	def on_get(self, req, resp):
 		"""Handles GET requests"""
@@ -52,7 +52,7 @@ def _default(obj):
 	# elif settings.DEBUG and isinstance(obj, models.Model):
 	# 	return obj.to_dict()
 	# todo 删除
-	elif isinstance(obj, business_model):
+	elif isinstance(obj, business_model):   # 临时兼容线上几个有问题的订单
 		return obj.to_dict()
 	else: 
 		raise TypeError('%r is not JSON serializable (type %s)' % (obj, type(obj)))
