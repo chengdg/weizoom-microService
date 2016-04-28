@@ -159,11 +159,16 @@ try:
     from psycopg2 import extensions as pg_extensions
 except ImportError:
     psycopg2 = None
+
+# 使用MySQLdb在uwsgi时会有冲突，使用pymysql代替
+#try:
+#    import MySQLdb as mysql  # prefer the C module.
+#except ImportError:
 try:
-    import MySQLdb as mysql  # prefer the C module.
+    import pymysql as mysql
 except ImportError:
     try:
-        import pymysql as mysql
+        import MySQLdb as mysql
     except ImportError:
         mysql = None
 
