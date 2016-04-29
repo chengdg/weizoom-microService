@@ -19,11 +19,10 @@ class ZipkinClient(object):
 	def __init__(self, zid, zdepth):
 		super(ZipkinClient, self).__init__()
 		self.zid = zid
-		self.zdepth = int(zdepth) + 1
+		self.zdepth = int(zdepth)
 		self.zindex = 1
 		self.msg = '[zipkin:python]'
 		self.service = settings.SERVICE_NAME
-		print ">>>>>>>>>>>"
 
 	def sendMessge(self, type, responseTime, method='', resource='', data='', isCallDownstream=0):
 		self.zindex += 1
