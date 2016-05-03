@@ -52,8 +52,8 @@ def _default(obj):
 	# elif settings.DEBUG and isinstance(obj, models.Model):
 	# 	return obj.to_dict()
 	# todo 删除
-	elif isinstance(obj, business_model):   # 临时兼容线上几个有问题的订单
-		return obj.to_dict()
+	# elif isinstance(obj, business_model):   # 临时兼容线上几个有问题的订单
+	# 	return obj.to_dict()
 	else: 
 		raise TypeError('%r is not JSON serializable (type %s)' % (obj, type(obj)))
 
