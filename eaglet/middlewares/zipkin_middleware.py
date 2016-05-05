@@ -3,7 +3,7 @@
 import settings
 from eaglet.core.zipkin import zipkin_client
 
-    class ZipkinMiddleware(object):
+class ZipkinMiddleware(object):
     """docstring for ZipkinMiddleware"""
     def process_request(self, request, response):
 
