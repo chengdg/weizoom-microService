@@ -16,13 +16,14 @@ TYPE2STRING = {
 
 class ZipkinClient(object):
 	"""docstring for ZipkinClient"""
-	def __init__(self, zid, zdepth):
+	def __init__(self, zid, zdepth, fZindex=0):
 		super(ZipkinClient, self).__init__()
 		self.zid = zid
 		self.zdepth = int(zdepth)
 		self.zindex = 1
 		self.msg = '[zipkin:python]'
 		self.service = settings.SERVICE_NAME
+		self.fZindex = fZindex
 
 	def sendMessge(self, type, responseTime, method='', resource='', data='', isCallDownstream=0):
 		self.zindex += 1
@@ -32,7 +33,7 @@ class ZipkinClient(object):
 		self.resource = resource
 		self.data = data
 		self.isCallDownstream = isCallDownstream
-
+		self.fZindex = fZindex
 		data =  self.getData()
 		logging.info(json.dumps(data))
 
@@ -50,5 +51,6 @@ class ZipkinClient(object):
 			"resource": self.resource,
 			"method": self.method,
 			"data": self.data,
+			'fZindex': self.fZindex
 		}
 

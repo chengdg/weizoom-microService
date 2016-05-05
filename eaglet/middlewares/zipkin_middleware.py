@@ -9,8 +9,9 @@ class ZipkinMiddleware(object):
 
 		zid = request.params.get('zid', None)
 		zdepth = request.params.get('zdepth', 1)
+        f_zindex = request.params.get('f_zindex', 0)
 		zipkin_client.zipkinClient = None
 		if zid:
-			zipkin_client.zipkinClient = zipkin_client.ZipkinClient(zid, zdepth)
+			zipkin_client.zipkinClient = zipkin_client.ZipkinClient(zid, zdepth, f_zindex)
 			#request.params['zipkin_client'] = zipkin_client.zipkinClient 
 		
