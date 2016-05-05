@@ -33,7 +33,6 @@ class ZipkinClient(object):
 		self.resource = resource
 		self.data = data
 		self.isCallDownstream = isCallDownstream
-		self.fZindex = fZindex
 		data =  self.getData()
 		logging.info(json.dumps(data))
 
