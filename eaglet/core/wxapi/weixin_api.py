@@ -303,7 +303,7 @@ class WeixinApi(object):
 
 	def _notify_api_request_error(self, apierror, api_name='' ,user_id=0):
 		notify_msg = u"微信api调用失败，api:{}\n错误信息:{}".format(api_name, apierror.__unicode__())
-		watchdog_error(notify_msg,user_id=user_id)
+		watchdog.error(notify_msg,user_id=user_id)
 
 	def _raise_request_error(self, response, api_name='' , user_id=0):
 		error_response = WeixinErrorResponse(response)
