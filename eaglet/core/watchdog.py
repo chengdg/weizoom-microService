@@ -5,14 +5,20 @@
 Watchdog接口
 需要settings里面配置SERVICE_NAME和设置logging格式
 logging.basicConfig(
-	format='[%(asctime)s] %(name)s %(levelname)s %(message)s', 
-	datefmt="%Y-%m-%d %H:%M:%S", 
+	format='[%(asctime)s] %(name)s %(levelname)s %(message)s',
+	datefmt="%Y-%m-%d %H:%M:%S",
 	level=logging.INFO
 )
 """
 __author__ = 'duhao'
 import settings
 import logging
+import json
+import decimal
+from eaglet.core.exceptionutil import unicode_full_stack
+
+from datetime import datetime, date
+
 
 DEBUG = 1
 INFO = 2
@@ -41,6 +47,16 @@ def alert(message, log_type='WEB', user_id='0'):
 	__watchdog(ALERT, message, log_type, user_id)
 
 
+def _default(obj):
+	if isinstance(obj, datetime):
+		return obj.strftime('%Y-%m-%d %H:%M:%S')
+	elif isinstance(obj, date):
+		return obj.strftime('%Y-%m-%d')
+	elif isinstance(obj, decimal.Decimal):
+		return str(obj)
+	else:
+		return '<object>'
+
 def __watchdog(level, message, log_type, user_id):
 	"""
 	@param[in] level 日志级别
@@ -50,6 +66,18 @@ def __watchdog(level, message, log_type, user_id):
 	"""
 	if type(user_id) == int:
 		user_id = str(user_id)
+
+	# 转成json字符串
+	try:
+		if isinstance(message, dict):
+			message = json.dumps(message, default=_default)
+	except BaseException as e:
+		print("watchdog dumps error:", e)
+		message = {
+			'BaseException': str(e),
+			'traceback': unicode_full_stack()
+		}
+		error(message=message, log_type='watchdog_error')
 
 	#由于logging的限制，自定义的输出信息都拼装到message里进行打印
 	message = '%s %s %s' % (log_type, user_id, message)
