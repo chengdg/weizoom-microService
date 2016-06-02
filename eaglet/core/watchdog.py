@@ -15,7 +15,7 @@ import settings
 import logging
 import json
 import decimal
-from eaglet.core.exceptionutil import unicode_full_stack
+from eaglet.core.wd import watchdog_client
 
 from datetime import datetime, date
 
@@ -27,23 +27,23 @@ ERROR = 4
 ALERT = 5
 logger = logging.getLogger(settings.SERVICE_NAME)
 
-def debug(message, log_type='WEB', user_id='0'):
+def debug(message, log_type='API', user_id='0'):
 	__watchdog(DEBUG, message, log_type, user_id)
 
 
-def info(message, log_type='WEB', user_id='0'):
+def info(message, log_type='API', user_id='0'):
 	__watchdog(INFO, message, log_type, user_id)
 
 
-def warning(message, log_type='WEB', user_id='0'):
+def warning(message, log_type='API', user_id='0'):
 	__watchdog(WARNING, message, log_type, user_id)
 
 
-def error(message, log_type='WEB', user_id='0'):
+def error(message, log_type='API', user_id='0'):
 	__watchdog(ERROR, message, log_type, user_id)
 
 
-def alert(message, log_type='WEB', user_id='0'):
+def alert(message, log_type='API', user_id='0'):
 	__watchdog(ALERT, message, log_type, user_id)
 
 
@@ -67,20 +67,8 @@ def __watchdog(level, message, log_type, user_id):
 	if type(user_id) == int:
 		user_id = str(user_id)
 
-	# 转成json字符串
-	try:
-		if isinstance(message, dict):
-			message = json.dumps(message, default=_default)
-	except BaseException as e:
-		print("watchdog dumps error:", e)
-		message = {
-			'BaseException': str(e),
-			'traceback': unicode_full_stack()
-		}
-		error(message=message, log_type='watchdog_error')
+	message = watchdog_client.watchdogClient.getMessge(message, user_id, log_type)
 
-	#由于logging的限制，自定义的输出信息都拼装到message里进行打印
-	message = '%s %s %s' % (log_type, user_id, message)
 	if level == DEBUG:
 		logger.debug(message)
 	elif level == INFO:

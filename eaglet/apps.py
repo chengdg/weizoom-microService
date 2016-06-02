@@ -6,11 +6,13 @@ from datetime import datetime, date
 
 import falcon
 from eaglet.core import api_resource
+from eaglet.core.wd import watchdog_client
 from eaglet.core.exceptionutil import unicode_full_stack
 import settings
 import api.resources
 import wapi as wapi_resource
 from core.db import models
+
 from business.model import Model as business_model # 临时兼容线上几个有问题的订单
 class ThingsResource:
 	def on_get(self, req, resp):
@@ -63,7 +65,8 @@ class FalconResource:
 		#self.resource = resource
 		pass
 
-	def call_wapi(self, method, app, resource, req, resp):		
+	def call_wapi(self, method, app, resource, req, resp):
+		watchdog_client.watchdogClient = watchdog_client.WatchdogClient(settings.SERVICE_NAME)		
 		response = {
 			"code": 200,
 			"errMsg": "",
@@ -106,6 +109,7 @@ class FalconResource:
 
 def create_app():
 	#添加middleware
+	
 	middlewares = []
 	for middleware in settings.MIDDLEWARES:
 		items = middleware.split('.')
