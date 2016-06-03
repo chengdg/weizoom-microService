@@ -22,17 +22,20 @@ class WatchdogClient(object):
             self.type =  type
         
         try:
+            err_msg = ''
             json.dumps(message)
         except:
-            message = unicode_full_stack()
+            message = str(message)
+            err_msg = unicode_full_stack()
 
         message = {
             "msg": self.msg,
             "service_name": self.service_name,
             "type": self.type,
-            "id": self.id,
+            "uuid": self.id,
             "index":  self.index,
             "message": message,
-            "userId": user_id
+            "user_id": user_id,
+            "json_error": err_msg
         }
         return json.dumps(message)

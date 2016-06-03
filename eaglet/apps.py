@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import json
+import simplejson
 import decimal
 from datetime import datetime, date
 
 import falcon
 from eaglet.core import api_resource
 from eaglet.core.wd import watchdog_client
+from eaglet.core import watchdog
 from eaglet.core.exceptionutil import unicode_full_stack
 import settings
 import api.resources
@@ -78,6 +80,9 @@ class FalconResource:
 		args.update(req.params)
 		args.update(req.context)
 		args['wapi_id'] = req.path + '_' + req.method
+
+		param_args = {}
+        param_args['req_params']= req.params
 		try:
 			raw_response = wapi_resource.wapi_call(method, app, resource, args, req)
 			if type(raw_response) == tuple:
@@ -98,6 +103,16 @@ class FalconResource:
 			response['errMsg'] = str(e).strip()
 			response['innerErrMsg'] = unicode_full_stack()
 		resp.body = json.dumps(response, default=_default)
+		try:
+			param_args['app'] = app
+			param_args['resource'] = resource
+			param_args['method'] = method
+			param_args.update(json.loads(resp.body))
+			#param_args.update(simplejson.loads(resp.body))
+			watchdog.info(param_args,"CALL_API")
+		except:
+			pass
+
 
 	def on_get(self, req, resp, app, resource):
 		self.call_wapi('get', app, resource, req, resp)
