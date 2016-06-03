@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import json
-import simplejson
 import decimal
 from datetime import datetime, date
 
