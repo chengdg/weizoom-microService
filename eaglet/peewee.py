@@ -15,7 +15,7 @@
 #      ///'
 #     //
 #    '
-
+import os
 import datetime
 import decimal
 import hashlib
@@ -3415,11 +3415,23 @@ class Database(object):
                 if require_commit and self.get_autocommit():
                     self.commit()
             finally:
+                try:
+                    f = sys._getframe()
+                    f = f.f_back
+                    retStr = ''
+                    while hasattr(f, "f_code"):
+                        co = f.f_code
+                        retStr = "%s(%s:%s)->"%(os.path.basename(co.co_filename), co.co_name,f.f_lineno) + retStr
+                        f = f.f_back
+                except:
+                    retStr = ''
+                
+
                 stop = time()
                 duration = stop - start
                 sql = sql % tuple(params)
                 if hasattr(zipkin_client, 'zipkinClient') and zipkin_client.zipkinClient:
-                    zipkin_client.zipkinClient.sendMessge(zipkin_client.TYPE_CALL_MYSQL, duration, method='', resource=sql, data='')
+                    zipkin_client.zipkinClient.sendMessge(zipkin_client.TYPE_CALL_MYSQL, duration, method='', resource=sql, data=retStr)
 
                 if settings.DEBUG:
                     try:
