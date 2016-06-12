@@ -7,7 +7,7 @@ import json
 import api_settings
 import weixin_error_codes as errorcodes
 
-from core.jsonresponse import decode_json_str
+from eaglet.core.jsonresponse import decode_json_str
 from eaglet.core.exceptionutil import unicode_full_stack
 from eaglet.utils.url_helper import complete_get_request_url
 #from core.weixin_media_saver import save_weixin_user_head_img
@@ -191,7 +191,8 @@ def call_api(weixin_api, api_instance_class):
 					
 				api_response = weixin_api.weixin_http_client.post(request_url, post_param_json_str, is_for_form)
 		except:
-			weixin_api._raise_system_error(api_desc, weixin_api.mpuser_access_token.mpuser.owner_id)
+			#weixin_api._raise_system_error(api_desc, weixin_api.mpuser_access_token.mpuser.owner_id)
+			weixin_api._raise_system_error(api_desc)
 
 		result = api_response
 		print 'api call result>>>>>>>>>>>>>>>>>:',result
@@ -219,11 +220,11 @@ def call_api(weixin_api, api_instance_class):
 			except:
 				result_code = result['errcode']
 			
-			if result_code == errorcodes.API_NOT_AUTHORIZED_CODE:
-				mpuser_access_token = weixin_api.mpuser_access_token
-				#mpuser_access_token.is_active = False
-				mpuser_access_token.is_certified = False
-				mpuser_access_token.save()
+			# if result_code == errorcodes.API_NOT_AUTHORIZED_CODE:
+			# 	mpuser_access_token = weixin_api.mpuser_access_token
+			# 	#mpuser_access_token.is_active = False
+			# 	mpuser_access_token.is_certified = False
+			# 	mpuser_access_token.save()
 			
 			# try:
 			# 	if result_code == errorcodes.INVALID_ACCESS_TOKEN_CODE or result_code == errorcodes.ILLEGAL_ACCESS_TOKEN_CODE or result_code == errorcodes.ACCESS_TOKEN_EXPIRED_CODE:
@@ -243,8 +244,9 @@ def call_api(weixin_api, api_instance_class):
 			# 		else:
 			# 			weixin_api._raise_request_error(api_response, api_desc, weixin_api.mpuser_access_token.mpuser.owner_id)
 			# else:
-			weixin_api._raise_request_error(api_response, api_desc, weixin_api.mpuser_access_token.mpuser.owner_id)
-		
+			#weixin_api._raise_request_error(api_response, api_desc, weixin_api.mpuser_access_token.mpuser.owner_id)
+			weixin_api._raise_request_error(api_response, api_desc)
+			
 		return api_instance_class.parse_response(api_response)
 
 	return _call_api
