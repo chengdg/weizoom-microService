@@ -62,6 +62,22 @@ def _default(obj):
 		print('abcdefg',json.dumps(trace))
 		print("*********************************************bug_9094_end")
 
+		try:
+			import sys
+			import os
+
+			f = sys._getframe()
+			f = f.f_back
+			retStr = ''
+			while hasattr(f, "f_code"):
+				co = f.f_code
+				retStr = "%s(%s:%s)->" % (os.path.basename(co.co_filename), co.co_name, f.f_lineno) + retStr
+				f = f.f_back
+		except:
+			retStr = ''
+
+		print('hijklmn',retStr)
+
 		return obj.to_dict()
 	else: 
 		raise TypeError('%r is not JSON serializable (type %s)' % (obj, type(obj)))
