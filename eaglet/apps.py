@@ -56,6 +56,12 @@ def _default(obj):
 	# 	return obj.to_dict()
 	# todo 删除
 	elif isinstance(obj, business_model):   # 临时兼容线上几个有问题的订单
+
+		trace = unicode_full_stack()
+		print("*********************************************bug_9094_begin")
+		print(trace)
+		print("*********************************************bug_9094_end")
+
 		return obj.to_dict()
 	else: 
 		raise TypeError('%r is not JSON serializable (type %s)' % (obj, type(obj)))
