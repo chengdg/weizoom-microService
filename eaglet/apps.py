@@ -59,7 +59,7 @@ def _default(obj):
 
 		trace = unicode_full_stack()
 		print("*********************************************bug_9094_begin")
-		print('abcdefg',trace)
+		print('abcdefg',json.dumps(trace))
 		print("*********************************************bug_9094_end")
 
 		return obj.to_dict()
