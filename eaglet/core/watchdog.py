@@ -18,7 +18,11 @@ import decimal
 from eaglet.core.wd import watchdog_client
 
 from datetime import datetime, date
-
+logging.basicConfig(level=logging.INFO,
+        format='%(asctime)s %(levelname)s : %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S',
+        evel=logging.INFO
+        )
 
 DEBUG = 1
 INFO = 2
