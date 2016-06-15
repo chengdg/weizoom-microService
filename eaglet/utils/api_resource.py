@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
+import urllib
+import urlparse
 
 import requests
 from eaglet.core import watchdog
@@ -57,6 +59,16 @@ class ServiceProcessFailure(RequestFailure):
 HTTPFailure = requests.exceptions.RequestException
 
 
+def url_add_params(url, **params):
+	""" 在网址中加入新参数 """
+	pr = urlparse.urlparse(url)
+	query = dict(urlparse.parse_qsl(pr.query))
+	query.update(params)
+	prlist = list(pr)
+	prlist[4] = urllib.urlencode(query)
+	return urlparse.ParseResult(*prlist).geturl()
+
+
 class APIResourceClient(object):
 	def __init__(self, host, resource):
 		self.host = host
@@ -104,26 +116,23 @@ class APIResourceClient(object):
 
 		# todo zipkin支持
 		#
-		# if hasattr(zipkin_client, 'zipkinClient') and zipkin_client.zipkinClient:
-		# 	zid = zipkin_client.zipkinClient.zid
-		# 	zindex = zipkin_client.zipkinClient.zindex
-		# 	fZindex = zipkin_client.zipkinClient.fZindex
-		# 	zdepth = zipkin_client.zipkinClient.zdepth
-		# else:
-		# 	zid = 1
-		# 	zindex =1
-		# 	fZindex = 1
-		# 	zdepth = 1
-		#
-		# 	if '?' not in url:
-		# 		url += '?'
-		#
-		# 	url +=
-		#
-		# 	zipkin_args = '&'.join([str(zid), str(zdepth + 1), ])
-		#
-		# resp = None
-		# start = time()
+		if hasattr(zipkin_client, 'zipkinClient') and zipkin_client.zipkinClient:
+			zid = zipkin_client.zipkinClient.zid
+			zindex = zipkin_client.zipkinClient.zindex
+			fZindex = zipkin_client.zipkinClient.fZindex
+			zdepth = zipkin_client.zipkinClient.zdepth
+		else:
+			zid = 1
+			zindex = 1
+			fZindex = 1
+			zdepth = 1
+
+		url = url_add_params(url, zid=zid, zindex=zindex, f_zindex=str(fZindex) + '_' + str(zindex), zdepth=zdepth+1)
+
+
+
+		resp = None
+		start = time()
 		try:
 			# 访问资源
 			if method == 'get':
@@ -158,14 +167,14 @@ class APIResourceClient(object):
 			traceback = unicode_full_stack()
 			self.__log(False, url, params, resp, str(type(e)), traceback)
 			return False, 0, {}
-		# finally:
-		#
-		# 	stop = time()
-		# 	duration = stop - start
-		#
-		# 	if hasattr(zipkin_client, 'zipkinClient') and zipkin_client.zipkinClient:
-		# 		zipkin_client.zipkinClient.sendMessge(zipkin_client.TYPE_CALL_SERVICE, duration, method='', resource='',
-		# 		                                      data='')
+		finally:
+
+			stop = time()
+			duration = stop - start
+
+			if hasattr(zipkin_client, 'zipkinClient') and zipkin_client.zipkinClient:
+				zipkin_client.zipkinClient.sendMessge(zipkin_client.TYPE_CALL_SERVICE, duration, method='', resource='',
+				                                      data='')
 
 	def __log(self, is_success, url, params, resp, failure_type='', traceback=''):
 		if failure_type:
