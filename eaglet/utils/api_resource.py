@@ -140,7 +140,8 @@ class APIResourceClient(object):
 			elif method == 'post':
 				resp = requests.post(url, params, timeout=DEFAULT_TIMEOUT)
 			else:
-				url = (url + '?_method=' + method) if ('_method' not in url) else url
+				# url = (url + '?_method=' + method) if ('_method' not in url) else url
+				url = url_add_params(url, _method=method)
 				resp = requests.post(url, params, timeout=DEFAULT_TIMEOUT)
 
 			# 解析响应
