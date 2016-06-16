@@ -155,6 +155,7 @@ class APIResourceClient(object):
 				if code == 200 or code == 500:
 
 					self.__log(True, url, params, resp)
+					print('--------',url,params,resp,resp.text,resp.status_code)
 					return True, code, data
 				else:
 					raise ServiceProcessFailure
