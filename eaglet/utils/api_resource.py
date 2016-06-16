@@ -73,6 +73,7 @@ class APIResourceClient(object):
 	def __init__(self, host, resource):
 		self.host = host
 		self.resource = resource
+		self.resp = None
 
 	def get(self, params):
 		return self.__request(self.host, self.resource, params, 'get')
@@ -144,6 +145,8 @@ class APIResourceClient(object):
 				url = url_add_params(url, _method=method)
 				resp = requests.post(url, params, timeout=DEFAULT_TIMEOUT)
 
+				self.resp = resp
+
 			# 解析响应
 			if resp.status_code == 200:
 				json_data = json.loads(resp.text)
@@ -187,6 +190,8 @@ class APIResourceClient(object):
 			'failure_type': failure_type,
 			'traceback': traceback
 		}
+
+		resp = self.resp
 
 		if resp:
 			msg['http_code'] = resp.status_code
