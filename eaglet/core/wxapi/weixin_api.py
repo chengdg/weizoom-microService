@@ -7,7 +7,7 @@ import json
 import api_settings
 import weixin_error_codes as errorcodes
 
-from eaglet.core.jsonresponse import decode_json_str
+#from eaglet.core.jsonresponse import decode_json_str
 from eaglet.core.exceptionutil import unicode_full_stack
 from eaglet.utils.url_helper import complete_get_request_url
 #from core.weixin_media_saver import save_weixin_user_head_img
@@ -87,6 +87,9 @@ detail: 异常详情
 				pass
 	
 """
+
+def decode_json_str(str):
+	return json.loads(str)
 
 class WeixinApiResponse(object):
 	def __init__(self, weixin_response):
