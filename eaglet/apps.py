@@ -9,10 +9,11 @@ from eaglet.core import api_resource
 from eaglet.core.wd import watchdog_client
 from eaglet.core import watchdog
 from eaglet.core.exceptionutil import unicode_full_stack
+from eaglet.core.db import models
 import settings
 import api.resources
 import wapi as wapi_resource
-from core.db import models
+
 
 from business.model import Model as business_model # 临时兼容线上几个有问题的订单
 class ThingsResource:

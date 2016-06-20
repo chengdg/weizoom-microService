@@ -3,8 +3,7 @@ import settings
 
 try:
     from mongoengine import connect
-    db = settings.DB
-    for key,db_config in db.items():
+    for key,db_config in settings.DATABASES.items():
         try:
             if db_config['ENGINE'].lower() == "mongo":
                 connect(db_config['NAME'], 
