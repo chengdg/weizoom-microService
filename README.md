@@ -17,3 +17,21 @@ git+https://git2.weizzz.com:84/microservice/eaglet.git@da39a3ee5e6b4b0d3255bfef9
 
 ## 如何使用 ##
 使用geser生成微服务的codebase
+
+## 集成mongo ##
+在项目setting中配置：
+```
+DATABASES = {
+    ...
+    'apps_default': {
+        'ENGINE': 'mongo',                 # used MongoDB
+        'NAME': 'app_data',                # DATABASE NAME
+        'USER': None,                      # USERNAME
+        'PASSWORD': None,                  # PASSWORD
+        'HOST': 'mongo.apps.com',          # HOST
+        "ALIAS": 'apps',                   # ALIAS
+        "PORT": 27017                      # PROT
+    }
+    ....
+}
+```

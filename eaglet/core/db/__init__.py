@@ -10,7 +10,8 @@ try:
                         host=db_config['HOST'], 
                         alias=db_config['ALIAS'], 
                         username=db_config['USER'], 
-                        password=db_config['PASSWORD'])
+                        password=db_config['PASSWORD'],
+                        port=db_config.get('PORT',27017)
         except Exception, e:
             print(e)
 
