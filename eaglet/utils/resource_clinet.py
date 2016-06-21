@@ -66,7 +66,7 @@ class Inner(object):
 		@return is_success,code,data
 		"""
 
-		host = 'api2.weapp.com'
+		host = 'api.weapp.com'
 
 		resource_path = resource.replace('.', '/')
 
