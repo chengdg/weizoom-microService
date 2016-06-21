@@ -12,7 +12,7 @@ from time import time
 
 DEFAULT_TIMEOUT = 10
 DEFAULT_RETRY_COUNT = 3
-CALL_SERVICE_WATCHDOG_TYPE = 'call_service'
+CALL_SERVICE_WATCHDOG_TYPE = 'call_service_resource'
 
 
 # def conn_try_again(function):
