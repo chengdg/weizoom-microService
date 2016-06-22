@@ -8,10 +8,10 @@ class ZipkinMiddleware(object):
     def process_request(self, request, response):
 
         zid = request.params.get('zid', None)
-        f_zindex = request.params.get('f_zindex', 0)
+        fZindex = request.params.get('f_zindex', 0)
         zdepth = request.params.get('zdepth', 1)
         zipkin_client.zipkinClient = None
         if zid:
-            zipkin_client.zipkinClient = zipkin_client.ZipkinClient(zid, zdepth, f_zindex)
+            zipkin_client.zipkinClient = zipkin_client.ZipkinClient(settings.SERVICE_NAME, zid, zdepth, fZindex)
 
             #request.params['zipkin_client'] = zipkin_client.zipkinClient 
