@@ -78,7 +78,7 @@ def __watchdog(level, message, log_type, user_id, server_name):
 	if type(user_id) == int:
 		user_id = str(user_id)
 
-	if watchdog_client.watchdogClient:
+	if hasattr(watchdog_client, 'watchdogClient') and watchdog_client.watchdogClient:
 		message = watchdog_client.watchdogClient.getMessge(message, user_id, log_type)
 	else:
 		watchdog_client.watchdogClient = watchdog_client.WatchdogClient(server_name)	
