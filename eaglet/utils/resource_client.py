@@ -86,7 +86,7 @@ class Inner(object):
 			zindex = 1
 			fZindex = 1
 			zdepth = 1
-			zipkinClient = zipkin_client.ZipkinClient(zid, zdepth, fZindex)
+			zipkinClient = zipkin_client.ZipkinClient(self.service, zid, zdepth, fZindex)
 			
 
 			
