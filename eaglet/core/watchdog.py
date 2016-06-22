@@ -91,9 +91,9 @@ def __watchdog(level, message, log_type, user_id, server_name):
 	elif level == WARNING:
 		logging.warn(message)
 	elif level == ERROR:
-		logger.error(message)
+		logging.error(message)
 	elif level == ALERT: #TODO delele alter
-		logger.critical(message)
+		logging.critical(message)
 	elif level == CRITICAL:
-		logger.critical(message)
+		logging.critical(message)
 		
