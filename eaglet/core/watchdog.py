@@ -31,7 +31,7 @@ WARNING = 3
 ERROR = 4
 #TODO delete 
 ALERT = 5
-#CRITICAL = 5
+CRITICAL = 6
 
 #logger = logging.getLogger(settings.SERVICE_NAME)
 
@@ -53,6 +53,9 @@ def error(message, log_type='API', user_id='0', server_name=''):
 
 def alert(message, log_type='API', user_id='0', server_name=''):
 	__watchdog(ALERT, message, log_type, user_id, server_name)
+
+def critical(message, log_type='API', user_id='0', server_name=''):
+	__watchdog(CRITICAL, message, log_type, user_id, server_name)
 
 
 def _default(obj):
@@ -89,5 +92,8 @@ def __watchdog(level, message, log_type, user_id, server_name):
 		logger.warn(message)
 	elif level == ERROR:
 		logger.error(message)
-	elif level == ALERT:
+	elif level == ALERT: #TODO delele alter
 		logger.critical(message)
+	elif level == CRITICAL:
+		logger.critical(message)
+		
