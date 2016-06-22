@@ -154,9 +154,9 @@ class Inner(object):
 			msg['resp_text'] = ''
 
 		if is_success:
-			watchdog.info(msg, CALL_SERVICE_WATCHDOG_TYPE)
+			watchdog.info(msg, CALL_SERVICE_WATCHDOG_TYPE, server_name=self.service)
 		else:
-			watchdog.alert(msg, CALL_SERVICE_WATCHDOG_TYPE)
+			watchdog.alert(msg, CALL_SERVICE_WATCHDOG_TYPE, server_name=self.service)
 
 
 class Resource(object):
