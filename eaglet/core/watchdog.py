@@ -85,11 +85,11 @@ def __watchdog(level, message, log_type, user_id, server_name):
 		message = watchdog_client.watchdogClient.getMessge(message, user_id, log_type)
 
 	if level == DEBUG:
-		logger.debug(message)
+		logging.debug(message)
 	elif level == INFO:
-		logger.info(message)
+		logging.info(message)
 	elif level == WARNING:
-		logger.warn(message)
+		logging.warn(message)
 	elif level == ERROR:
 		logger.error(message)
 	elif level == ALERT: #TODO delele alter
