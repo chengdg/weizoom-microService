@@ -90,6 +90,11 @@ class Command(BaseCommand):
                 httpd = simple_server.make_server(self.addr, int(self.port), wsgi_application)
             httpd.serve_forever()
         except socket.error as e:
+            print('--------------e',e)
+            from eaglet.core.exceptionutil import unicode_full_stack
+            print('*********************************')
+            print(unicode_full_stack())
+            print('*********************************')
             # Use helpful error messages instead of ugly tracebacks.
             ERRORS = {
                 errno.EACCES: "You don't have permission to access that port.",
