@@ -98,13 +98,13 @@ class Inner(object):
 		try:
 			# 访问资源
 			if method == 'get':
-				resp = requests.get(url, params, timeout=DEFAULT_TIMEOUT)
+				resp = requests.get(url, params=params, timeout=DEFAULT_TIMEOUT)
 			elif method == 'post':
-				resp = requests.post(url, params, timeout=DEFAULT_TIMEOUT)
+				resp = requests.post(url, data=params, timeout=DEFAULT_TIMEOUT)
 			else:
 				# 对于put、delete方法，变更为post方法，且querystring增加_method=put或_method=delete
 				url = url_add_params(url, _method=method)
-				resp = requests.post(url, params, timeout=DEFAULT_TIMEOUT)
+				resp = requests.post(url, data=params, timeout=DEFAULT_TIMEOUT)
 
 			self.__resp = resp
 
