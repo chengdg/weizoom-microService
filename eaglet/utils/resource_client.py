@@ -34,6 +34,8 @@ CALL_SERVICE_WATCHDOG_TYPE = 'call_service_resource'
 #
 # 	return wrapped
 
+DEFAULT_GATEWAY_HOST = 'api.weapp.com'
+
 def url_add_params(url, **params):
 	""" 在网址中加入新参数 """
 	pr = urlparse.urlparse(url)
@@ -45,8 +47,9 @@ def url_add_params(url, **params):
 
 
 class Inner(object):
-	def __init__(self, service):
+	def __init__(self, service, gateway_host):
 		self.service = service
+		self.gateway_host = gateway_host
 		self.__resp = None
 
 	def get(self, options):
@@ -68,7 +71,7 @@ class Inner(object):
 		@return is_success,code,data
 		"""
 
-		host = 'api.weapp.com'
+		host = self.gateway_host
 
 		resource_path = resource.replace('.', '/')
 
@@ -166,5 +169,5 @@ class Inner(object):
 
 class Resource(object):
 	@staticmethod
-	def use(service):
-		return Inner(service)
+	def use(service, gateway_host=DEFAULT_GATEWAY_HOST):
+		return Inner(service, gateway_host)
