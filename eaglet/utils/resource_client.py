@@ -3,11 +3,13 @@
 import json
 import urllib
 import urlparse
+import uuid
 
 import requests
 from eaglet.core import watchdog
 from eaglet.core.exceptionutil import unicode_full_stack
 from eaglet.core.zipkin import zipkin_client
+from eaglet.core.zipkin.zipkin_client import ZipkinClient
 from time import time
 
 DEFAULT_TIMEOUT = 10
@@ -32,6 +34,8 @@ CALL_SERVICE_WATCHDOG_TYPE = 'call_service_resource'
 #
 # 	return wrapped
 
+DEFAULT_GATEWAY_HOST = 'api.weapp.com'
+
 def url_add_params(url, **params):
 	""" 在网址中加入新参数 """
 	pr = urlparse.urlparse(url)
@@ -43,8 +47,9 @@ def url_add_params(url, **params):
 
 
 class Inner(object):
-	def __init__(self, service):
+	def __init__(self, service, gateway_host):
 		self.service = service
+		self.gateway_host = gateway_host
 		self.__resp = None
 
 	def get(self, options):
@@ -66,7 +71,7 @@ class Inner(object):
 		@return is_success,code,data
 		"""
 
-		host = 'api.weapp.com'
+		host = self.gateway_host
 
 		resource_path = resource.replace('.', '/')
 
@@ -78,11 +83,16 @@ class Inner(object):
 			zindex = zipkin_client.zipkinClient.zindex
 			fZindex = zipkin_client.zipkinClient.fZindex
 			zdepth = zipkin_client.zipkinClient.zdepth
+			zipkinClient = zipkin_client.zipkinClient
 		else:
-			zid = 1
+			zid = str(uuid.uuid1())
 			zindex = 1
 			fZindex = 1
 			zdepth = 1
+			zipkinClient = zipkin_client.ZipkinClient(self.service, zid, zdepth, fZindex)
+			
+
+			
 
 		url = url_add_params(base_url, zid=zid, zindex=zindex, f_zindex=str(fZindex) + '_' + str(zindex),
 		                     zdepth=zdepth + 1)
@@ -91,13 +101,13 @@ class Inner(object):
 		try:
 			# 访问资源
 			if method == 'get':
-				resp = requests.get(url, params, timeout=DEFAULT_TIMEOUT)
+				resp = requests.get(url, params=params, timeout=DEFAULT_TIMEOUT)
 			elif method == 'post':
-				resp = requests.post(url, params, timeout=DEFAULT_TIMEOUT)
+				resp = requests.post(url, data=params, timeout=DEFAULT_TIMEOUT)
 			else:
 				# 对于put、delete方法，变更为post方法，且querystring增加_method=put或_method=delete
 				url = url_add_params(url, _method=method)
-				resp = requests.post(url, params, timeout=DEFAULT_TIMEOUT)
+				resp = requests.post(url, data=params, timeout=DEFAULT_TIMEOUT)
 
 			self.__resp = resp
 
@@ -129,9 +139,7 @@ class Inner(object):
 		finally:
 			stop = time()
 			duration = stop - start
-			if hasattr(zipkin_client, 'zipkinClient') and zipkin_client.zipkinClient:
-				zipkin_client.zipkinClient.sendMessge(zipkin_client.TYPE_CALL_SERVICE, duration, method='', resource='',
-				                                      data='')
+			zipkinClient.sendMessge(zipkin_client.TYPE_CALL_SERVICE, duration, method=method, resource='', data='')
 
 	def __log(self, is_success, url, params, method, failure_type='', failure_msg=''):
 		msg = {
@@ -154,12 +162,12 @@ class Inner(object):
 			msg['resp_text'] = ''
 
 		if is_success:
-			watchdog.info(msg, CALL_SERVICE_WATCHDOG_TYPE)
+			watchdog.info(msg, CALL_SERVICE_WATCHDOG_TYPE, server_name=self.service)
 		else:
-			watchdog.alert(msg, CALL_SERVICE_WATCHDOG_TYPE)
+			watchdog.alert(msg, CALL_SERVICE_WATCHDOG_TYPE, server_name=self.service)
 
 
 class Resource(object):
 	@staticmethod
-	def use(service):
-		return Inner(service)
+	def use(service, gateway_host=DEFAULT_GATEWAY_HOST):
+		return Inner(service, gateway_host)

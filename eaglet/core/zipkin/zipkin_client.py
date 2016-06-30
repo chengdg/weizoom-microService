@@ -2,7 +2,6 @@
 
 import json
 import logging
-import settings
 
 TYPE_CALL_SERVICE = 3
 TYPE_CALL_REDIS = 1
@@ -16,13 +15,13 @@ TYPE2STRING = {
 
 class ZipkinClient(object):
 	"""docstring for ZipkinClient"""
-	def __init__(self, zid, zdepth, fZindex=0):
+	def __init__(self, service_name, zid, zdepth, fZindex=0):
 		super(ZipkinClient, self).__init__()
 		self.zid = zid
 		self.zdepth = int(zdepth)
 		self.zindex = 1
 		self.msg = '[zipkin:python]'
-		self.service = settings.SERVICE_NAME
+		self.service = service_name
 		self.fZindex = fZindex
 
 	def sendMessge(self, type, responseTime, method='', resource='', data='', isCallDownstream=0):
