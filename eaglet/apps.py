@@ -102,12 +102,13 @@ class FalconResource:
 			response['code'] = 531 #不要改动这个code，531是表明service内部发生异常的返回码
 			response['errMsg'] = str(e).strip()
 			response['innerErrMsg'] = unicode_full_stack()
+
+			msg = {
+				'traceback': unicode_full_stack()
+			}
+			watchdog.alert(msg, 'Error')
 		resp.body = json.dumps(response, default=_default)
 
-		msg = {
-			'traceback': unicode_full_stack()
-		}
-		watchdog.alert(msg, 'Error')
 		try:
 			param_args['app'] = app
 			param_args['resource'] = resource
