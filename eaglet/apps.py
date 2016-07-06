@@ -103,6 +103,11 @@ class FalconResource:
 			response['errMsg'] = str(e).strip()
 			response['innerErrMsg'] = unicode_full_stack()
 		resp.body = json.dumps(response, default=_default)
+
+		msg = {
+			'traceback': unicode_full_stack()
+		}
+		watchdog.alert(msg, 'Error')
 		try:
 			param_args['app'] = app
 			param_args['resource'] = resource
