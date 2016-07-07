@@ -34,7 +34,7 @@ class WatchdogClient(object):
             "type": self.type,
             "uuid": self.id,
             "index":  self.index,
-            "message": message,
+            "xmessage": message,    # 兼容elk，字段名不能为message
             "user_id": user_id,
             "json_error": err_msg
         }
