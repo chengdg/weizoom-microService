@@ -8,6 +8,12 @@ eaglet为开发python微服务提供了核心框架，每一个python微服务�
 pip install git+https://git2.weizzz.com:84/microservice/eaglet.git
 ```
 
+## 更新
+
+```
+pip install -U git+https://git2.weizzz.com:84/microservice/eaglet.git
+```
+
 ## 安装指定分支、tag、commit
 ```
 git+https://git2.weizzz.com:84/microservice/eaglet.git@master
