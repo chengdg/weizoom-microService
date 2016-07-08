@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # May you do good and not evil
 # May you find forgiveness for yourself and forgive others
 # May you share freely, never taking more than you give.  -- SQLite source code
@@ -3433,24 +3434,24 @@ class Database(object):
                 if hasattr(zipkin_client, 'zipkinClient') and zipkin_client.zipkinClient:
                     zipkin_client.zipkinClient.sendMessge(zipkin_client.TYPE_CALL_MYSQL, duration, method='', resource=sql, data=retStr)
 
-                if settings.DEBUG:
-                    try:
-                        if settings.MODE == 'develop':
-                            # stop = time()
-                            # duration = stop - start
-                            # sql = sql % tuple(params)
-                            QUERIES.append({
-                                'source': 'mysql',
-                                'query': sql,
-                                'time': "%.3f" % duration,
-                                'stack': get_trace_back()
-                            })
-                        logger.debug((sql, params))
-                    except Exception as e:
-                        print '========== sql record exception =========='
-                        print("sql: " + sql)
-                        print("params: {}".format(params))
-                        print("Exception: {}".format(e))
+                # if settings.DEBUG:
+                #     try:
+                #         if settings.MODE == 'develop':
+                #             # stop = time()
+                #             # duration = stop - start
+                #             # sql = sql % tuple(params)
+                #             QUERIES.append({
+                #                 'source': 'mysql',
+                #                 'query': sql,
+                #                 'time': "%.3f" % duration,
+                #                 'stack': get_trace_back()
+                #             })
+                #         logger.debug((sql, params))
+                #     except Exception as e:
+                #         print '========== sql record exception =========='
+                #         print("sql: " + sql)
+                #         print("params: {}".format(params))
+                #         print("Exception: {}".format(e))
         return cursor
 
     def begin(self):

@@ -2,6 +2,17 @@
 
 import json
 import logging
+try:
+	import settings
+except:
+	from django.conf import settings
+
+
+try:
+	IS_DEVELOP = (settings.MODE == 'develop')
+except BaseException as e:
+	IS_DEVELOP = False
+
 
 TYPE_CALL_SERVICE = 3
 TYPE_CALL_REDIS = 1
@@ -33,7 +44,8 @@ class ZipkinClient(object):
 		self.data = data
 		self.isCallDownstream = isCallDownstream
 		data =  self.getData()
-		logging.info(json.dumps(data))
+		if not IS_DEVELOP:
+			logging.info(json.dumps(data))
 
 
 	def getData(self):
