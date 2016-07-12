@@ -25,18 +25,20 @@
 
 """
 
-# import os
-# import sys
-# import json
+from celery import Celery
+celery = Celery()
+celery.config_from_object('eaglet.core.service.celeryconfig')
 
-from celery.execute import send_task as send_celery_task
-from eaglet.core.service import celeryconfig
+#from celery.execute import send_task as send_celery_task
+#from eaglet.core.service import celeryconfig
 from eaglet.core import watchdog
 from eaglet.core.exceptionutil import unicode_full_stack
 
+
+
 def send_task(queue_name, args):
     try:
-        result = send_celery_task(queue_name, args=[args], queue=queue_name)
+        result = celery.send_task(queue_name, args=[args], queue=queue_name)
     except:
         notify_message = u"queue_name:{}, args:{}, cause:\n{}".format(queue_name, args, unicode_full_stack())
         watchdog.error(notify_message)
