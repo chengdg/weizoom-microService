@@ -29,8 +29,6 @@ from celery import Celery
 celery = Celery()
 celery.config_from_object('eaglet.core.service.celeryconfig')
 
-#from celery.execute import send_task as send_celery_task
-#from eaglet.core.service import celeryconfig
 from eaglet.core import watchdog
 from eaglet.core.exceptionutil import unicode_full_stack
 
