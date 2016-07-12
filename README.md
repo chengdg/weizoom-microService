@@ -41,3 +41,32 @@ DATABASES = {
     ....
 }
 ```
+
+
+## 分布式celery：send_task ##
+
+**应用场景**
+消息模版需求：积分变动发送模版消息。目前微服务场景下，member_service，apiserver,zeus都会修改会员积分，所有使用消息队列方式，解决模版消息业务侵入各独立service。
+接下缓存策略中缓存更新也将使用异步消息的方式。
+
+**用法**：
+
+    from eaglet.core.utils.send_task import send_task
+
+    send_task(queue_name, args)
+
+**说明**：
+
+    <queue_name> : 服务(队列名称)的名称。
+
+**用法举例**：
+    
+    integarl_log = {
+        "member_id":1,
+        "nick_name":"weizoom",
+        "event_type": "好友通过分享链接购买商品",
+        "increase_integral": 100,
+        "current_integral": 200
+    }
+    send_task("services.template_message_integral_service.tasks.service_tempate_message_integral", integarl_log)
+
