@@ -133,7 +133,7 @@ def __paginate(objects, cur_page, item_count_per_page):
 #===============================================================================
 # paginate : 分页的外部接口
 #===============================================================================
-def query_paginate(objects, cur_page, item_count_per_page, query_string=None, field=None):
+def paginate(objects, cur_page, item_count_per_page, query_string=None, field=None):
     if field:
         objects = objects.values_list(field, flat=True)
     page_info, curpage_objects = __paginate(objects, cur_page, item_count_per_page)
