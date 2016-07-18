@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from eaglet import peewee
 class PageInfo(object):
     """
         分页器
@@ -129,7 +129,10 @@ def __paginate(objects, cur_page, item_count_per_page):
     #获取当前page应包含的对象列表
     #
     start, end = __get_curpage_item_range(cur_page, item_count_per_page)
-    curpage_objects = objects[start:end]
+    if isinstance(objects, peewee.SelectQuery):
+        curpage_objects = objects.paginate(cur_page, item_count_per_page)
+    else:
+        curpage_objects = objects[start:end]
 
     return page_info, curpage_objects
 
