@@ -6,21 +6,21 @@ import sys
 
 def load_eaglet_command(command):
     module_name = 'eaglet.command.%s' % command
-    try:
-        print 'load eaglet command: ', module_name
-        module = __import__(module_name, {}, {}, ['*',])
-        return module
-    except Exception:
-        return None
+    #try:
+    print 'load eaglet command: ', module_name
+    module = __import__(module_name, {}, {}, ['*',])
+    return module
+    # except Exception:
+    #     return None
 
 def load_local_command(command):
     module_name = 'commands.%s' % command
-    try:
-        print 'load local command: ', module_name
-        module = __import__(module_name, {}, {}, ['*',])
-        return module
-    except Exception:
-        return None
+    #try:
+    print 'load local command: ', module_name
+    module = __import__(module_name, {}, {}, ['*',])
+    return module
+    #except Exception:
+    #    return None
 
 def run_command(command):
     command_module = load_eaglet_command(command)
