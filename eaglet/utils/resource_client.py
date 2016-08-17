@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+"""
+@package eaglet.utils.resouce_client
+访问API的client
+
+"""
 
 import json
 import urllib
@@ -9,8 +14,10 @@ import requests
 from eaglet.core import watchdog
 from eaglet.core.exceptionutil import unicode_full_stack
 from eaglet.core.zipkin import zipkin_client
-from eaglet.core.zipkin.zipkin_client import ZipkinClient
+#from eaglet.core.zipkin.zipkin_client import ZipkinClient
 from time import time
+
+import settings
 
 DEFAULT_TIMEOUT = 30
 DEFAULT_RETRY_COUNT = 3
@@ -34,7 +41,6 @@ CALL_SERVICE_WATCHDOG_TYPE = 'call_service_resource'
 #
 # 	return wrapped
 
-DEFAULT_GATEWAY_HOST = 'api.weapp.com'
 
 def url_add_params(url, **params):
 	""" 在网址中加入新参数 """
@@ -75,7 +81,11 @@ class Inner(object):
 
 		resource_path = resource.replace('.', '/')
 
-		base_url = 'http://%s/%s/%s/' % (host, self.service, resource_path)
+		if self.service:
+			base_url = '%s://%s/%s/%s/' % (settings.API_SCHEME, host, self.service, resource_path)
+		else:
+			# 如果resouce为None，则URL中省略resource。方便本地调试。
+			base_url = '%s://%s/%s/' % (settings.API_SCHEME, host, self.service, resource_path)
 
 		# zipkin支持
 		if hasattr(zipkin_client, 'zipkinClient') and zipkin_client.zipkinClient:
@@ -90,8 +100,6 @@ class Inner(object):
 			fZindex = 1
 			zdepth = 1
 			zipkinClient = zipkin_client.ZipkinClient(self.service, zid, zdepth, fZindex)
-			
-
 			
 
 		url = url_add_params(base_url, zid=zid, zindex=zindex, f_zindex=str(fZindex) + '_' + str(zindex),
@@ -124,7 +132,6 @@ class Inner(object):
 				else:
 					self.__log(False, url, params, method, 'ServiceProcessFailure', 'BUSINESS_CODE:' + str(code))
 					return None
-
 			else:
 				self.__log(False, url, params, method, 'ServerResponseFailure',
 				           'HTTP_STATUS_CODE:' + str(resp.status_code))
@@ -169,5 +176,5 @@ class Inner(object):
 
 class Resource(object):
 	@staticmethod
-	def use(service, gateway_host=DEFAULT_GATEWAY_HOST):
+	def use(service, gateway_host=settings.DEFAULT_GATEWAY_HOST):
 		return Inner(service, gateway_host)
