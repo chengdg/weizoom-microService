@@ -66,14 +66,16 @@ class Inner(object):
 				}
 			})
 		# TODO: 需缓存access_token
+		access_token = None
 		if res and res['code']==200:
 			# 表示业务成功
 			data = res['data']
-			self.access_token = data['access_token']
+			access_token = data['access_token']
 			# data['expire_time']
 			logging.info("Got access_token from API service")
 		else:
 			logging.info("Failed to get `access_token`, resp: {}".format(res))
+		self.access_token = access_token
 		return
 
 
