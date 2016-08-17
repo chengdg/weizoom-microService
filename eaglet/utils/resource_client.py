@@ -16,15 +16,13 @@ from eaglet.core.exceptionutil import unicode_full_stack
 from eaglet.core.zipkin import zipkin_client
 #from eaglet.core.zipkin.zipkin_client import ZipkinClient
 from time import time
+import logging
 
 try:
 	import settings
 except:
 	from django.conf import settings
 
-DEFAULT_TIMEOUT = 30
-DEFAULT_RETRY_COUNT = 3
-CALL_SERVICE_WATCHDOG_TYPE = 'call_service_resource'
 
 
 # def conn_try_again(function):
@@ -59,6 +57,11 @@ class Inner(object):
 	def __init__(self, service, gateway_host):
 		self.service = service
 		self.gateway_host = gateway_host
+		if not gateway_host.find('://'):
+			# 如果没有scheme，则自动补全
+			self.gateway_host = "%s://%s" % (settings.DEFAULT_API_SCHEME, gateway_host)
+		logging.info(u"gateway_host: {}".format(self.gateway_host))
+
 		self.__resp = None
 
 	def get(self, options):
@@ -85,10 +88,10 @@ class Inner(object):
 		resource_path = resource.replace('.', '/')
 
 		if self.service:
-			base_url = '%s://%s/%s/%s/' % (settings.API_SCHEME, host, self.service, resource_path)
+			base_url = '%s/%s/%s/' % (host, self.service, resource_path)
 		else:
 			# 如果resouce为None，则URL中省略resource。方便本地调试。
-			base_url = '%s://%s/%s/' % (settings.API_SCHEME, host, resource_path)
+			base_url = '%s/%s/' % (host, resource_path)
 
 		# zipkin支持
 		if hasattr(zipkin_client, 'zipkinClient') and zipkin_client.zipkinClient:
@@ -112,13 +115,13 @@ class Inner(object):
 		try:
 			# 访问资源
 			if method == 'get':
-				resp = requests.get(url, params=params, timeout=DEFAULT_TIMEOUT)
+				resp = requests.get(url, params=params, timeout=settings.DEFAULT_TIMEOUT)
 			elif method == 'post':
-				resp = requests.post(url, data=params, timeout=DEFAULT_TIMEOUT)
+				resp = requests.post(url, data=params, timeout=settings.DEFAULT_TIMEOUT)
 			else:
 				# 对于put、delete方法，变更为post方法，且querystring增加_method=put或_method=delete
 				url = url_add_params(url, _method=method)
-				resp = requests.post(url, data=params, timeout=DEFAULT_TIMEOUT)
+				resp = requests.post(url, data=params, timeout=settings.DEFAULT_TIMEOUT)
 
 			self.__resp = resp
 
@@ -172,9 +175,9 @@ class Inner(object):
 			msg['resp_text'] = ''
 
 		if is_success:
-			watchdog.info(msg, CALL_SERVICE_WATCHDOG_TYPE, server_name=self.service)
+			watchdog.info(msg, settings.CALL_SERVICE_WATCHDOG_TYPE, server_name=self.service)
 		else:
-			watchdog.alert(msg, CALL_SERVICE_WATCHDOG_TYPE, server_name=self.service)
+			watchdog.alert(msg, settings.CALL_SERVICE_WATCHDOG_TYPE, server_name=self.service)
 
 
 class Resource(object):
