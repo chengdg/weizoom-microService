@@ -18,9 +18,9 @@ from eaglet.core.zipkin import zipkin_client
 from time import time
 
 try:
-	from django.conf import settings
-except:
 	import settings
+except:
+	from django.conf import settings
 
 DEFAULT_TIMEOUT = 30
 DEFAULT_RETRY_COUNT = 3
@@ -88,7 +88,7 @@ class Inner(object):
 			base_url = '%s://%s/%s/%s/' % (settings.API_SCHEME, host, self.service, resource_path)
 		else:
 			# 如果resouce为None，则URL中省略resource。方便本地调试。
-			base_url = '%s://%s/%s/' % (settings.API_SCHEME, host, self.service, resource_path)
+			base_url = '%s://%s/%s/' % (settings.API_SCHEME, host, resource_path)
 
 		# zipkin支持
 		if hasattr(zipkin_client, 'zipkinClient') and zipkin_client.zipkinClient:

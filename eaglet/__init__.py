@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 try:
-	from django.conf import settings
-except:
 	import settings
+except:
+	from django.conf import settings
 import logging
 
 __all__ = []
