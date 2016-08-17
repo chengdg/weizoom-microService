@@ -73,7 +73,22 @@ DATABASES = {
 
 # 启动API授权机制
 
-1. **API service端**：为API Resource method增加 `@access_token_required()`。参考`new_zeus`中的`a_demo.py`。
+1. **API service端**：为API Resource method增加 `@access_token_required()`。例如：
+```
+from api.decorators import access_token_required
+
+class AData(api_resource.ApiResource):
+    app = 'demo'
+    resource = 'data'
+
+    @param_required(['id'])
+    @access_token_required() # <--- 增加decorator
+    def get(args):
+        // ...
+        return {
+            "args": args
+        }
+```
 
 2. **Client端**：在settings中加上
 ```
@@ -84,8 +99,8 @@ APP_SECRET = '<对应的secret>'
 
 ## API授权访问流程
 
-1. Hermes中Resource.use()
-2. eaglet.utils.resource_client.Resource 向API service申请access_token（需要app_key和app_secret）
+1. 在`Hermes`中调用`Resource.use()`；
+2. `eaglet.utils.resource_client.Resource` 向API service申请access_token（需要app_key和app_secret）；
 3. Hermes中获得的client再访问API时会加上access_token。
 
 ## TODO
