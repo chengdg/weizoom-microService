@@ -80,7 +80,7 @@ class Inner(object):
 	def __init__(self, service, gateway_host):
 		self.service = service
 		self.gateway_host = gateway_host
-		if gateway_host.find('://')>=0:
+		if gateway_host.find('://')<0:
 			# 如果没有scheme，则自动补全
 			self.gateway_host = "%s://%s" % (settings.DEFAULT_API_SCHEME, gateway_host)
 		logging.info(u"gateway_host: {}".format(self.gateway_host))
