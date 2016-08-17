@@ -74,9 +74,8 @@ DATABASES = {
 # 启动API授权机制
 
 1. **API service端**：为API Resource method增加 `@access_token_required()`。例如：
-```
+```python
 from api.decorators import access_token_required
-
 class AData(api_resource.ApiResource):
     app = 'demo'
     resource = 'data'
@@ -91,7 +90,7 @@ class AData(api_resource.ApiResource):
 ```
 
 2. **Client端**：在settings中加上
-```
+```python
 ENABLE_API_AUTH = True
 APP_KEY = '<对应的app key>'
 APP_SECRET = '<对应的secret>'
