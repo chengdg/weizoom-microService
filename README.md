@@ -70,3 +70,24 @@ DATABASES = {
     }
     send_task("services.template_message_integral_service.tasks.service_tempate_message_integral", integarl_log)
 
+
+# 启动API授权机制
+
+1. **API service端**：为API Resource method增加 `@access_token_required()`。参考`new_zeus`中的`a_demo.py`。
+
+2. **Client端**：在settings中加上
+```
+ENABLE_API_AUTH = True
+APP_KEY = '<对应的app key>'
+APP_SECRET = '<对应的secret>'
+```
+
+## API授权访问流程
+
+1. Hermes中Resource.use()
+2. eaglet.utils.resource_client.Resource 向API service申请access_token（需要app_key和app_secret）
+3. Hermes中获得的client再访问API时会加上access_token。
+
+## TODO
+
+需要将`resource_client.py`独立成一个插件，加上缓存access_token的DB Model。
