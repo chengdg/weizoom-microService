@@ -54,6 +54,29 @@ def url_add_params(url, **params):
 
 
 class Inner(object):
+
+	def __get_auth(self):
+		# 获取access_token
+		res = self.get({
+			'resource': 'auth.access_token',
+			'data': {
+				'app_key': settings.APP_KEY,
+				'app_secret': settings.APP_SECRET,
+				#'woid': 0
+				}
+			})
+		# TODO: 需缓存access_token
+		if res and res['code']==200:
+			# 表示业务成功
+			data = res['data']
+			self.access_token = data['access_token']
+			# data['expire_time']
+			logging.info("Got access_token from API service")
+		else:
+			logging.info("Failed to get `access_token`, resp: {}".format(res))
+		return
+
+
 	def __init__(self, service, gateway_host):
 		self.service = service
 		self.gateway_host = gateway_host
@@ -63,6 +86,11 @@ class Inner(object):
 		logging.info(u"gateway_host: {}".format(self.gateway_host))
 
 		self.__resp = None
+
+		if settings.ENABLE_API_AUTH:
+			self.__get_auth()
+		else:
+			self.access_token = None
 
 	def get(self, options):
 		return self.__request(options['resource'], options['data'], 'get')
@@ -114,6 +142,9 @@ class Inner(object):
 		start = time()
 		try:
 			# 访问资源
+			if self.access_token:
+				params['access_token'] = self.access_token
+
 			if method == 'get':
 				resp = requests.get(url, params=params, timeout=settings.DEFAULT_TIMEOUT)
 			elif method == 'post':
