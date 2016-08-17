@@ -17,7 +17,10 @@ from eaglet.core.zipkin import zipkin_client
 #from eaglet.core.zipkin.zipkin_client import ZipkinClient
 from time import time
 
-import settings
+try:
+	from django.conf import settings
+except:
+	import settings
 
 DEFAULT_TIMEOUT = 30
 DEFAULT_RETRY_COUNT = 3
