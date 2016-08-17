@@ -80,6 +80,7 @@ class Inner(object):
 
 
 	def __init__(self, service, gateway_host):
+		self.access_token = None
 		self.service = service
 		self.gateway_host = gateway_host
 		if gateway_host.find('://')<0:
