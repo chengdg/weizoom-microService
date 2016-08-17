@@ -75,8 +75,8 @@ class Inner(object):
 			logging.info("Got access_token from API service")
 		else:
 			logging.info("Failed to get `access_token`, resp: {}".format(res))
-		self.access_token = access_token
-		return
+		#self.access_token = access_token
+		return access_token
 
 
 	def __init__(self, service, gateway_host):
@@ -88,11 +88,7 @@ class Inner(object):
 		logging.info(u"gateway_host: {}".format(self.gateway_host))
 
 		self.__resp = None
-
-		if settings.ENABLE_API_AUTH:
-			self.__get_auth()
-		else:
-			self.access_token = None
+		self.access_token = self.__get_auth() if settings.ENABLE_API_AUTH else None
 
 	def get(self, options):
 		return self.__request(options['resource'], options['data'], 'get')
