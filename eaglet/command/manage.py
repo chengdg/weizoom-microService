@@ -23,7 +23,10 @@ def load_local_command(command):
     #    return None
 
 def run_command(command):
-    command_module = load_eaglet_command(command)
+    try:
+        command_module = load_eaglet_command(command)
+    except Exception as e:
+        command_module = None
     if not command_module:
         command_module = load_local_command(command)
 
