@@ -39,6 +39,7 @@ def run_command(command):
         except TypeError, e:
             print '[ERROR]: wrong command arguments, usages:'
             print instance.help
+            print 'Exception: {}'.format(e)
 
 # if __name__ == "__main__":
 #     command = sys.argv[1]
