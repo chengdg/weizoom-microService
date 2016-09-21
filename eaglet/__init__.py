@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import logging
 try:
 	import settings
-except:
+except Exception as e:
+	print "Exception: {}".format(e)
 	from django.conf import settings
-import logging
 
 __all__ = []
 
