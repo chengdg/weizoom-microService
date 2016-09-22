@@ -25,6 +25,8 @@ def morph_params(param):
 			new_param['wid'] = param['webapp_user'].id
 		elif key == 'webapp_owner':
 			new_param['woid'] = param['webapp_owner'].id
+		elif key == 'corporation':
+			new_param['corp_id'] = param['corporation'].id
 		elif key == 'zipkin_client':
 			pass
 		else:
