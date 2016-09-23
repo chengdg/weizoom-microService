@@ -116,6 +116,9 @@ class FalconResource:
 			param_args.update(json.loads(resp.body))
 			#param_args.update(simplejson.loads(resp.body))
 			watchdog.info(param_args,"CALL_API")
+
+			if response['code'] != 200 and settings.DEBUG:
+				print response['innerErrMsg']
 		except:
 			pass
 
