@@ -149,6 +149,9 @@ def create_app():
 
 	falcon_app = falcon.API(middleware=middlewares)
 
+	# 解析值为空的参数
+	falcon_app.req_options.keep_blank_qs_values = True
+
 	#for (app_resource, resource_cls) in api_resource.APPRESOURCE2CLASS.items():
 	#	app, resource = app_resource.split('-')
 	#	print("registered API: /wapi/%s/%s/" % (app, resource))
