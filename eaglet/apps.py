@@ -106,10 +106,10 @@ class FalconResource:
 			msg = {
 				'traceback': unicode_full_stack()
 			}
-			watchdog.alert(msg, 'Error')
+			watchdog.critical(msg, 'Error')
 		resp.body = json.dumps(response, default=_default)
 
-		try:
+		if getattr(settings, 'DUMP_API_CALL_RESULT', True):
 			param_args['app'] = app
 			param_args['resource'] = resource
 			param_args['method'] = method
@@ -117,10 +117,8 @@ class FalconResource:
 			#param_args.update(simplejson.loads(resp.body))
 			watchdog.info(param_args,"CALL_API")
 
-			if response['code'] != 200 and settings.DEBUG:
+			if response['code'] != 200:
 				print response['innerErrMsg']
-		except:
-			pass
 
 
 	def on_get(self, req, resp, app, resource):
