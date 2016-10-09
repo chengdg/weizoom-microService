@@ -113,8 +113,10 @@ class FalconResource:
 			param_args['app'] = app
 			param_args['resource'] = resource
 			param_args['method'] = method
-			param_args.update(json.loads(resp.body))
-			#param_args.update(simplejson.loads(resp.body))
+			if response['code'] == 200:
+				param_args['response'] = json.loads(resp.body)
+			else:
+				param_args['response'] = 'ERROR'
 			watchdog.info(param_args,"CALL_API")
 
 			if response['code'] != 200:
