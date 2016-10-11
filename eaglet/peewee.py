@@ -371,6 +371,8 @@ def django_where_returns_clone(func):
                     args.append(db_field.__ge__(value))
                 elif op == '__notin':
                     args.append(db_field.not_in(value))
+                elif op == '__icontains':
+                    args.append(db_field.contains(value))
                 elif op == '__in':
                     if len(value) == 0:
                         #TODO2: handle situations like "select * from table where id in ()"
