@@ -373,6 +373,8 @@ def django_where_returns_clone(func):
                     args.append(db_field.not_in(value))
                 elif op == '__icontains':
                     args.append(db_field.contains(value))
+                elif op == '__range':
+                    args.append(db_field.between(value[0], value[1]))
                 elif op == '__in':
                     if len(value) == 0:
                         #TODO2: handle situations like "select * from table where id in ()"
@@ -2605,10 +2607,6 @@ class Query(Node):
 
     def _execute(self):
         sql, params = self.sql()
-        # added by Victor
-        if settings.ENABLE_SQL_LOG:
-            logger.info("SQL: {}".format(sql))
-            logger.info("PARMS: {}".format(params))
         return self.database.execute_sql(sql, params, self.require_commit)
 
     def execute(self):
@@ -3436,24 +3434,17 @@ class Database(object):
                 if hasattr(zipkin_client, 'zipkinClient') and zipkin_client.zipkinClient:
                     zipkin_client.zipkinClient.sendMessge(zipkin_client.TYPE_CALL_MYSQL, duration, method='', resource=sql, data=retStr)
 
-                # if settings.DEBUG:
-                #     try:
-                #         if settings.MODE == 'develop':
-                #             # stop = time()
-                #             # duration = stop - start
-                #             # sql = sql % tuple(params)
-                #             QUERIES.append({
-                #                 'source': 'mysql',
-                #                 'query': sql,
-                #                 'time': "%.3f" % duration,
-                #                 'stack': get_trace_back()
-                #             })
-                #         logger.debug((sql, params))
-                #     except Exception as e:
-                #         print '========== sql record exception =========='
-                #         print("sql: " + sql)
-                #         print("params: {}".format(params))
-                #         print("Exception: {}".format(e))
+                if settings.DEBUG:
+                    QUERIES.append({
+                        'source': 'mysql',
+                        'query': sql,
+                        'time': "%.3f" % duration,
+                        'stack': get_trace_back()
+                    })
+
+                if settings.ENABLE_SQL_LOG:
+                    logger.info(u'SQL:%s, PARAM:%s' % (sql, params))
+                    
         return cursor
 
     def begin(self):
