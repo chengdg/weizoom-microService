@@ -14,16 +14,13 @@ import requests
 from eaglet.core import watchdog
 from eaglet.core.exceptionutil import unicode_full_stack
 from eaglet.core.zipkin import zipkin_client
-#from eaglet.core.zipkin.zipkin_client import ZipkinClient
 from time import time
 import logging
 
-try:
-	import settings
-except:
-	from django.conf import settings
-
-
+# try:
+# 	import settings
+# except:
+# 	from django.conf import settings
 
 # def conn_try_again(function):
 # 	RETRIES = 0
@@ -42,6 +39,10 @@ except:
 #
 # 	return wrapped
 
+CALL_SERVICE_WATCHDOG_TYPE = "call_service_resource"
+DEFAULT_TIMEOUT = 30
+DEFAULT_GATEWAY_HOST = 'http://api.weapp.com'
+
 
 def url_add_params(url, **params):
 	""" 在网址中加入新参数 """
@@ -54,20 +55,19 @@ def url_add_params(url, **params):
 
 
 class Inner(object):
-
 	def __get_auth(self):
 		# 获取access_token
 		res = self.get({
 			'resource': 'auth.access_token',
 			'data': {
-				'app_key': settings.APP_KEY,
-				'app_secret': settings.APP_SECRET,
-				#'woid': 0
-				}
-			})
+				'app_key': self.app_key,
+				'app_secret': self.app_secret,
+				# 'woid': 0
+			}
+		})
 		# TODO: 需缓存access_token
 		access_token = None
-		if res and res['code']==200:
+		if res and res['code'] == 200:
 			# 表示业务成功
 			data = res['data']
 			access_token = data['access_token']
@@ -75,21 +75,28 @@ class Inner(object):
 			logging.info("Got access_token from API service")
 		else:
 			logging.info("Failed to get `access_token`, resp: {}".format(res))
-		#self.access_token = access_token
+		# self.access_token = access_token
 		return access_token
 
-
-	def __init__(self, service, gateway_host):
+	def __init__(self, service, gateway_host, config):
 		self.access_token = None
 		self.service = service
 		self.gateway_host = gateway_host
-		if gateway_host.find('://')<0:
+
+		self.service_map = config['service_map']
+		self.api_scheme = config['api_scheme']
+
+		self.enable_api_auth = config['enable_api_auth']
+		self.app_key = config['app_key']
+		self.app_secret = config['app_secret']
+		if gateway_host.find('://') < 0:
 			# 如果没有scheme，则自动补全
-			self.gateway_host = "%s://%s" % (settings.DEFAULT_API_SCHEME, gateway_host)
+			self.gateway_host = "%s://%s" % (self.api_scheme, gateway_host)
 		logging.info(u"gateway_host: {}".format(self.gateway_host))
 
 		self.__resp = None
-		self.access_token = self.__get_auth() if settings.ENABLE_API_AUTH else None
+		# self.access_token = self.__get_auth() if self.enable_api_auth else None
+		self.access_token = None  # 暂时关闭
 
 	def get(self, options):
 		return self.__request(options['resource'], options['data'], 'get')
@@ -114,8 +121,10 @@ class Inner(object):
 
 		resource_path = resource.replace('.', '/')
 
-		if self.service:
-			base_url = '%s/%s/%s/' % (host, self.service, resource_path)
+		service_name = self.service_map.get(self.service, self.service)
+
+		if service_name:
+			base_url = '%s/%s/%s/' % (host, service_name, resource_path)
 		else:
 			# 如果resouce为None，则URL中省略resource。方便本地调试。
 			base_url = '%s/%s/' % (host, resource_path)
@@ -132,8 +141,7 @@ class Inner(object):
 			zindex = 1
 			fZindex = 1
 			zdepth = 1
-			zipkinClient = zipkin_client.ZipkinClient(self.service, zid, zdepth, fZindex)
-			
+			zipkinClient = zipkin_client.ZipkinClient(service_name, zid, zdepth, fZindex)
 
 		url = url_add_params(base_url, zid=zid, zindex=zindex, f_zindex=str(fZindex) + '_' + str(zindex),
 		                     zdepth=zdepth + 1)
@@ -145,13 +153,13 @@ class Inner(object):
 				params['access_token'] = self.access_token
 
 			if method == 'get':
-				resp = requests.get(url, params=params, timeout=settings.DEFAULT_TIMEOUT)
+				resp = requests.get(url, params=params, timeout=DEFAULT_TIMEOUT)
 			elif method == 'post':
-				resp = requests.post(url, data=params, timeout=settings.DEFAULT_TIMEOUT)
+				resp = requests.post(url, data=params, timeout=DEFAULT_TIMEOUT)
 			else:
 				# 对于put、delete方法，变更为post方法，且querystring增加_method=put或_method=delete
 				url = url_add_params(url, _method=method)
-				resp = requests.post(url, data=params, timeout=settings.DEFAULT_TIMEOUT)
+				resp = requests.post(url, data=params, timeout=DEFAULT_TIMEOUT)
 
 			self.__resp = resp
 
@@ -205,12 +213,58 @@ class Inner(object):
 			msg['resp_text'] = ''
 
 		if is_success:
-			watchdog.info(msg, settings.CALL_SERVICE_WATCHDOG_TYPE, server_name=self.service)
+			watchdog.info(msg, CALL_SERVICE_WATCHDOG_TYPE, server_name=self.service)
 		else:
-			watchdog.alert(msg, settings.CALL_SERVICE_WATCHDOG_TYPE, server_name=self.service)
+			watchdog.alert(msg, CALL_SERVICE_WATCHDOG_TYPE, server_name=self.service)
 
 
 class Resource(object):
-	@staticmethod
-	def use(service, gateway_host=settings.DEFAULT_GATEWAY_HOST):
-		return Inner(service, gateway_host)
+	service_map = {}
+	enable_api_auth = False
+	api_scheme = 'http'
+	app_key = ''
+	app_secret = ''
+
+	__configured = False
+
+	@classmethod
+	def use(cls, service, gateway_host=DEFAULT_GATEWAY_HOST):
+
+		if not cls.__configured:
+			try:
+				import settings
+			except ImportError:
+				from django.conf import settings
+			except:
+				pass
+
+		return Inner(service, gateway_host, {
+			'service_map': cls.service_map,
+			'api_scheme': cls.api_scheme,
+			'enable_api_auth': cls.enable_api_auth,
+			'app_key': cls.app_key,
+			'app_secret': cls.app_secret
+		})
+
+	@classmethod
+	def configure(cls, config):
+
+		"""
+		在settings.py进行配置：
+
+		```
+		Resource.configure(
+			{
+				"service_map": {'gaia': 'gaia@inner'},
+			}
+		)
+		```
+		:param config:
+		:return:
+		"""
+		cls.service_map = config.get('service_map', cls.service_map)
+		cls.api_scheme = config.get('api_scheme', cls.api_scheme)
+		cls.enable_api_auth = config.get('enable_api_auth', cls.enable_api_auth)
+		cls.app_key = config.get('app_key', cls.app_key)
+		cls.app_secret = config.get('app_secret', cls.app_secret)
+		cls.__configured = True
