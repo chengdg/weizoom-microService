@@ -5,7 +5,10 @@ import decimal
 from datetime import datetime, date
 
 import falcon
+import sys
+
 from eaglet.core import api_resource
+from eaglet.core.debug import get_uncaught_exception_data
 from eaglet.core.wd import watchdog_client
 from eaglet.core import watchdog
 from eaglet.core.exceptionutil import unicode_full_stack
@@ -103,10 +106,13 @@ class FalconResource:
 			response['errMsg'] = str(e).strip()
 			response['innerErrMsg'] = unicode_full_stack()
 
+			exec_info = sys.exc_info()
+			uncaught_exception_data = get_uncaught_exception_data(req, *exec_info)
 			msg = {
-				'traceback': unicode_full_stack()
+				'traceback': unicode_full_stack(),
+				'uncaught_exception_data': uncaught_exception_data
 			}
-			watchdog.critical(msg, 'Error')
+			watchdog.critical(msg, 'Uncaught_Exception')
 		resp.body = json.dumps(response, default=_default)
 
 		if getattr(settings, 'DUMP_API_CALL_RESULT', True):
