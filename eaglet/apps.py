@@ -115,16 +115,13 @@ class FalconResource:
 			watchdog.critical(msg, 'Uncaught_Exception')
 		resp.body = json.dumps(response, default=_default)
 
-		if getattr(settings, 'DUMP_API_CALL_RESULT', True):
-			param_args['app'] = app
-			param_args['resource'] = resource
-			param_args['method'] = method
-			if response['code'] == 200:
-				param_args['response'] = json.loads(resp.body)
-			else:
-				param_args['response'] = 'ERROR'
-			watchdog.info(param_args,"CALL_API")
+		param_args['app'] = app
+		param_args['resource'] = resource
+		param_args['method'] = method
+		param_args['response'] = json.loads(resp.body)
+		watchdog.info(param_args, "CALL_API")
 
+		if getattr(settings, 'DUMP_API_CALL_RESULT', True):
 			if response['code'] != 200:
 				print response['innerErrMsg']
 
