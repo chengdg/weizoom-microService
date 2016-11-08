@@ -65,7 +65,11 @@ def force_text(s, encoding='utf-8', strings_only=False, errors='strict'):
 	try:
 		if not isinstance(s, six.string_types):
 			if hasattr(s, '__unicode__'):
-				s = s.__unicode__()
+				try:
+					s = s.__unicode__()
+				except:
+
+					s = 'force_text with  __unicode__() error'
 			else:
 				if six.PY3:
 					if isinstance(s, bytes):
@@ -86,8 +90,7 @@ def force_text(s, encoding='utf-8', strings_only=False, errors='strict'):
 		# working unicode method. Try to handle this without raising a
 		# further exception by individually forcing the exception args
 		# to unicode.
-		s = ' '.join([force_text(arg, encoding, strings_only,
-		                         errors) for arg in s])
+		s = 'force_text with UnicodeDecodeError'
 	return s
 
 
