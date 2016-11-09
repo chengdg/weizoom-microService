@@ -9,7 +9,7 @@ except:
 
 
 try:
-	IS_DEVELOP = (settings.MODE == 'develop')
+	IS_DEPLOY = (settings.MODE == 'deploy')
 except BaseException as e:
 	IS_DEVELOP = False
 
@@ -43,8 +43,8 @@ class ZipkinClient(object):
 		self.resource = resource
 		self.data = data
 		self.isCallDownstream = isCallDownstream
-		data =  self.getData()
-		if not IS_DEVELOP:
+		data = self.getData()
+		if IS_DEPLOY:
 			logging.info(json.dumps(data))
 
 
