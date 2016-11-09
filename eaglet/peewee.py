@@ -3434,7 +3434,7 @@ class Database(object):
                 if hasattr(zipkin_client, 'zipkinClient') and zipkin_client.zipkinClient:
                     zipkin_client.zipkinClient.sendMessge(zipkin_client.TYPE_CALL_MYSQL, duration, method='', resource=sql, data=retStr)
 
-                if settings.DEBUG:
+                if settings.DEBUG and settings.MODE!='develop':
                     QUERIES.append({
                         'source': 'mysql',
                         'query': sql,
