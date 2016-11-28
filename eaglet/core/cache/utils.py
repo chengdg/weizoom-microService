@@ -62,8 +62,18 @@ def modify_keys(function):
 
 @modify_keys
 def set_cache(key, value, timeout=0):
+	"""
+
+	@param key:
+	@param value:
+	@param timeout: 过期时间，单位秒
+	@return:
+	"""
 	pickled_value = pickle.dumps(value)
-	r.set(key, pickled_value)
+	if timeout:
+		r.set(key, pickled_value, ex=timeout)
+	else:
+		r.set(key, pickled_value)
 
 @modify_keys
 def get_cache(key):
