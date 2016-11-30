@@ -11,7 +11,7 @@ except:
 try:
 	IS_DEPLOY = (settings.MODE == 'deploy')
 except BaseException as e:
-	IS_DEVELOP = False
+	IS_DEPLOY = False
 
 
 TYPE_CALL_SERVICE = 3
