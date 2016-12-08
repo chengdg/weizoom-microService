@@ -17,6 +17,13 @@ from eaglet.core.zipkin import zipkin_client
 from time import time
 import logging
 
+
+
+
+session = requests.Session()
+adapter = requests.adapters.HTTPAdapter(pool_connections=10, pool_maxsize=10)
+session.mount('http://', adapter)
+
 # try:
 # 	import settings
 # except:
@@ -147,19 +154,20 @@ class Inner(object):
 		                     zdepth=zdepth + 1)
 
 		start = time()
+		global session
 		try:
 			# 访问资源
 			if self.access_token:
 				params['access_token'] = self.access_token
 
 			if method == 'get':
-				resp = requests.get(url, params=params, timeout=DEFAULT_TIMEOUT)
+				resp = session.get(url, params=params, timeout=DEFAULT_TIMEOUT)
 			elif method == 'post':
-				resp = requests.post(url, data=params, timeout=DEFAULT_TIMEOUT)
+				resp = session.post(url, data=params, timeout=DEFAULT_TIMEOUT)
 			else:
 				# 对于put、delete方法，变更为post方法，且querystring增加_method=put或_method=delete
 				url = url_add_params(url, _method=method)
-				resp = requests.post(url, data=params, timeout=DEFAULT_TIMEOUT)
+				resp = session.post(url, data=params, timeout=DEFAULT_TIMEOUT)
 
 			self.__resp = resp
 
