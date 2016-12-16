@@ -110,7 +110,9 @@ class FalconResource:
 			if settings.MODE == 'deploy':
 				watchdog.critical(uncaught_exception_data, 'Uncaught_Exception')
 			else:
+				print('**********Uncaught_Exception**********')
 				print(json.dumps(uncaught_exception_data, indent=2))
+				print('**********Uncaught_Exception**********\n')
 		resp.body = json.dumps(response, default=_default)
 
 		param_args['app'] = app
