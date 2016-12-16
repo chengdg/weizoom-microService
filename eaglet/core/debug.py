@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 import os
-
 import re
-
+from collections import OrderedDict
 import six
 from decimal import Decimal
 import datetime
 
 import sys
 
+def get_req_data(req):
+	return req.params
 
-def get_uncaught_exception_data(req, exc_type, exc_value, tb):
+def get_uncaught_exception_data(req):
 	"""
 	返回值结构：
 	- sys_path: sys.path
@@ -34,8 +35,11 @@ def get_uncaught_exception_data(req, exc_type, exc_value, tb):
 	@param tb:
 	@return:
 	"""
-	reporter = ExceptionReporter(req, exc_type, exc_value, tb)
-	data = reporter.get_traceback_data()
+	reporter = ExceptionReporter(*sys.exc_info())
+	data ={
+		'exception_data':reporter.get_exception_data(),
+		'req_data': get_req_data(req)
+	}
 	return data
 
 
@@ -79,7 +83,7 @@ def force_text(s, encoding='utf-8', strings_only=False, errors='strict'):
 				else:
 					s = six.text_type(bytes(s), encoding, errors)
 		else:
-			# Note: We use .decode() here, instead of six.text_type(s, encoding,
+			# Note: We extension .decode() here, instead of six.text_type(s, encoding,
 			# errors), so that if s is a SafeBytes, it ends up being a
 			# SafeText at the end.
 			s = s.decode(encoding, errors)
@@ -138,6 +142,23 @@ def get_safe_settings():
 # 		return "Error in formatting: %s" % force_text(e, errors="replace")
 
 
+def full_stack():
+	import traceback, sys
+	exc = sys.exc_info()[0]
+	stack = traceback.extract_stack()[:-1]  # last one would be full_stack()
+	if not exc is None:  # i.e. if an exception is present
+		del stack[-1]  # remove call of full_stack, the printed exception
+		# will contain the caught exception caller instead
+	trc = 'Traceback (most recent call last, REVERSED CALL ORDER):\n'
+	stackstr = trc + ''.join(reversed(traceback.format_list(stack)))
+	if not exc is None:
+		stackstr += '  ' + traceback.format_exc().lstrip(trc)
+
+	return stackstr
+
+
+def unicode_full_stack():
+	return full_stack().decode('utf-8')
 
 
 class ExceptionReporter(object):
@@ -145,8 +166,7 @@ class ExceptionReporter(object):
 	A class to organize and coordinate reporting on exceptions.
 	"""
 
-	def __init__(self, request, exc_type, exc_value, tb):
-		self.request = request
+	def __init__(self, exc_type, exc_value, tb):
 		self.exc_type = exc_type
 		self.exc_value = exc_value
 		self.tb = tb
@@ -167,14 +187,14 @@ class ExceptionReporter(object):
 			return "File is not readable"
 		return "File exists"
 
-	def get_traceback_data(self):
+	def get_exception_data(self):
 		"Return a Context instance containing traceback information."
 
 		frames = self.get_traceback_frames()
 		for i, frame in enumerate(frames):
 			if 'vars' in frame:
-				# from django.template.defaultfilters import force_escape
-				frame['vars'] = [{'key': k, 'value': force_text(v)} for k, v in frame['vars']]
+				frame['vars'] = [{'key': k, 'value': force_text(v)} for k, v in frame['vars'] if
+				                 (not k.startswith("__") and not k.endswith("__"))]
 			frames[i] = frame
 
 		# unicode_hint = ''
@@ -186,24 +206,34 @@ class ExceptionReporter(object):
 		# 		unicode_hint = smart_text(unicode_str[max(start - 5, 0):min(end + 5, len(unicode_str))], 'ascii',
 		# 		                          errors='replace')
 
-		c = {
+		system_info = OrderedDict([
+			('sys_executable', sys.executable),
+			('sys_version_info', ('%d.%d.%d' % sys.version_info[0:3])),
+			('server_time', str(datetime.datetime.now()))
+			# ('sys_path', sys.path)
 
-			# 'unicode_hint': unicode_hint,
-			'frames': frames,
-			'req_params': self.request.params,
+		])
 
-			# 'settings': get_safe_settings(),
-			'sys_executable': sys.executable,
-			'sys_version_info': '%d.%d.%d' % sys.version_info[0:3],
-			'server_time': str(datetime.datetime.now()),
-			'sys_path': sys.path,
+		current_frame = frames[-1]
 
+		summary = {
+			'exception_type': self.exc_type.__name__ if self.exc_type else '',
+			'exception_value': smart_text(self.exc_value, errors='replace') if self.exc_value else '',
+			'filename': current_frame['filename'],
+			'line': current_frame['context_line'],
+			'lineno': current_frame['lineno'],
+			'traceback': unicode_full_stack()
 		}
+		c = OrderedDict([
+			('summary', summary),
+			('system_info', system_info),
+			('frames', frames)
+
+		])
 		# Check whether exception info is available
-		if self.exc_type:
-			c['exception_type'] = self.exc_type.__name__
-		if self.exc_value:
-			c['exception_value'] = smart_text(self.exc_value, errors='replace')
+
+		c['frames'] = frames
+
 		# if frames:
 		# 	c['lastframe'] = frames[-1]
 		return c
@@ -269,16 +299,16 @@ class ExceptionReporter(object):
 			module_name = tb.tb_frame.f_globals.get('__name__') or ''
 			pre_context_lineno, pre_context, context_line, post_context = self._get_lines_from_file(filename, lineno, 7,
 			                                                                                        loader, module_name)
-			if pre_context_lineno is not None:
-				frames.append({
-					# 'tb': tb,
-					'filename': filename,
-					'function': function,
-					'vars': self.get_traceback_frame_variables(tb.tb_frame),
-					'pre_context': pre_context,
-					'context_line': context_line,
-					'post_context': post_context,
-				})
+			frames.append(OrderedDict([
+				# 'tb': tb,
+				('filename', filename),
+				('function', function),
+				('vars', self.get_traceback_frame_variables(tb.tb_frame)),
+				# ('pre_context', pre_context),
+				('lineno', tb.tb_lineno),
+				('context_line', context_line.replace("\t", "    ")),
+				# ('post_context', post_context),
+			]))
 			tb = tb.tb_next
 
 		return frames

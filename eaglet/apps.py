@@ -106,13 +106,11 @@ class FalconResource:
 			response['errMsg'] = str(e).strip()
 			response['innerErrMsg'] = unicode_full_stack()
 
-			exec_info = sys.exc_info()
-			uncaught_exception_data = get_uncaught_exception_data(req, *exec_info)
-			msg = {
-				'traceback': unicode_full_stack(),
-				'uncaught_exception_data': uncaught_exception_data
-			}
-			watchdog.critical(msg, 'Uncaught_Exception')
+			uncaught_exception_data = get_uncaught_exception_data(req)
+			if settings.MODE == 'deploy':
+				watchdog.critical(uncaught_exception_data, 'Uncaught_Exception')
+			else:
+				print(json.dumps(uncaught_exception_data, indent=2))
 		resp.body = json.dumps(response, default=_default)
 
 		param_args['app'] = app
