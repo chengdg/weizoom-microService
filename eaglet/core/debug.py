@@ -5,41 +5,44 @@ from collections import OrderedDict
 import six
 from decimal import Decimal
 import datetime
-
+import traceback
 import sys
+
 
 def get_req_data(req):
 	return req.params
 
+
+def full_stack():
+	exc = sys.exc_info()[0]
+	stack = traceback.extract_stack()[:-1]  # last one would be full_stack()
+	if not exc is None:  # i.e. if an exception is present
+		del stack[-1]  # remove call of full_stack, the printed exception
+	# will contain the caught exception caller instead
+	trc = 'Traceback (most recent call last, REVERSED CALL ORDER):\n'
+	stackstr = trc + ''.join(reversed(traceback.format_list(stack)))
+	if not exc is None:
+		stackstr += '  ' + traceback.format_exc().lstrip(trc)
+
+	return stackstr
+
+
+def unicode_full_stack():
+	return full_stack().decode('utf-8')
+
+
 def get_uncaught_exception_data(req):
-	"""
-	返回值结构：
-	- sys_path: sys.path
-	- server_time: 系统时间
-	- sys_version_info： python版本
-	- sys_executable：sys.executable
-	- exception_type：异常类型
-	- exception_value： 异常值
-	- req_params:请求参数
-	- frames：堆栈列表
-		- filename：文件路径
-		- pre_context：前面的行
-		- context_line: 异常发生的行
-		- post_context：后面的行
-		- vars：变量
-			- key
-			- value
-	@param req:
-	@param exc_type:
-	@param exc_value:
-	@param tb:
-	@return:
-	"""
 	reporter = ExceptionReporter(*sys.exc_info())
-	data ={
-		'exception_data':reporter.get_exception_data(),
-		'req_data': get_req_data(req)
-	}
+	try:
+		exception_data = reporter.get_exception_data()
+	except:
+		exception_data = unicode_full_stack()
+	data = OrderedDict((
+		('exception_id', reporter.exception_id),
+		('req_data', get_req_data(req)),
+		('exception_data', exception_data),
+		('traceback', unicode_full_stack()),
+	))
 	return data
 
 
@@ -142,23 +145,6 @@ def get_safe_settings():
 # 		return "Error in formatting: %s" % force_text(e, errors="replace")
 
 
-def full_stack():
-	import traceback, sys
-	exc = sys.exc_info()[0]
-	stack = traceback.extract_stack()[:-1]  # last one would be full_stack()
-	if not exc is None:  # i.e. if an exception is present
-		del stack[-1]  # remove call of full_stack, the printed exception
-		# will contain the caught exception caller instead
-	trc = 'Traceback (most recent call last, REVERSED CALL ORDER):\n'
-	stackstr = trc + ''.join(reversed(traceback.format_list(stack)))
-	if not exc is None:
-		stackstr += '  ' + traceback.format_exc().lstrip(trc)
-
-	return stackstr
-
-
-def unicode_full_stack():
-	return full_stack().decode('utf-8')
 
 
 class ExceptionReporter(object):
@@ -178,6 +164,8 @@ class ExceptionReporter(object):
 			self.exc_value = Exception('Deprecated String Exception: %r' % self.exc_type)
 			self.exc_type = type(self.exc_value)
 
+		self.exception_id = ''
+
 	def format_path_status(self, path):
 		if not os.path.exists(path):
 			return "File does not exist"
@@ -187,14 +175,28 @@ class ExceptionReporter(object):
 			return "File is not readable"
 		return "File exists"
 
+	def _get_bussines_data(self, tb):
+
+		vars = list(six.iteritems(tb.tb_frame.f_locals))
+		vars = [{'key': k, 'value': v} for k, v in vars if
+		        (not k.startswith("__") and not k.endswith("__") and k != 'response')]
+		print(vars)
+		try:
+			import debug_handler
+			data = debug_handler.handle(vars)
+		except:
+			data = {}
+
+		return data
+
 	def get_exception_data(self):
 		"Return a Context instance containing traceback information."
 
-		frames = self.get_traceback_frames()
+		frames, last_tb = self.get_traceback_frames()
 		for i, frame in enumerate(frames):
 			if 'vars' in frame:
 				frame['vars'] = [{'key': k, 'value': force_text(v)} for k, v in frame['vars'] if
-				                 (not k.startswith("__") and not k.endswith("__"))]
+				                 (not k.startswith("__") and not k.endswith("__") and k != 'response')]
 			frames[i] = frame
 
 		# unicode_hint = ''
@@ -205,31 +207,36 @@ class ExceptionReporter(object):
 		# 		unicode_str = self.exc_value.args[1]
 		# 		unicode_hint = smart_text(unicode_str[max(start - 5, 0):min(end + 5, len(unicode_str))], 'ascii',
 		# 		                          errors='replace')
+		bussines_data = {}
+		if last_tb:
+			bussines_data = self._get_bussines_data(last_tb)
 
-		system_info = OrderedDict([
+		system_info = OrderedDict((
 			('sys_executable', sys.executable),
 			('sys_version_info', ('%d.%d.%d' % sys.version_info[0:3])),
 			('server_time', str(datetime.datetime.now()))
 			# ('sys_path', sys.path)
 
-		])
+		))
 
-		current_frame = frames[-1]
+		last_frame = frames[-1]
 
-		summary = {
-			'exception_type': self.exc_type.__name__ if self.exc_type else '',
-			'exception_value': smart_text(self.exc_value, errors='replace') if self.exc_value else '',
-			'filename': current_frame['filename'],
-			'line': current_frame['context_line'],
-			'lineno': current_frame['lineno'],
-			'traceback': unicode_full_stack()
-		}
-		c = OrderedDict([
+		self.exception_id = last_frame['filename'] + '-' + str(last_frame['lineno'])
+
+		summary = OrderedDict((
+			('exception_type', self.exc_type.__name__ if self.exc_type else ''),
+			('exception_value', smart_text(self.exc_value, errors='replace') if self.exc_value else ''),
+			('filename', last_frame['filename']),
+			('line', last_frame['context_line']),
+			('lineno', last_frame['lineno']),
+			('bussines_data', bussines_data)
+		))
+
+		c = OrderedDict((
 			('summary', summary),
 			('system_info', system_info),
 			('frames', frames)
-
-		])
+		))
 		# Check whether exception info is available
 
 		c['frames'] = frames
@@ -286,6 +293,7 @@ class ExceptionReporter(object):
 	def get_traceback_frames(self):
 		frames = []
 		tb = self.tb
+		last_tb = tb
 		while tb is not None:
 			# Support for __traceback_hide__ which is used by a few libraries
 			# to hide internal frames.
@@ -309,9 +317,10 @@ class ExceptionReporter(object):
 				('context_line', context_line.replace("\t", "    ")),
 				# ('post_context', post_context),
 			]))
+			last_tb = tb
 			tb = tb.tb_next
 
-		return frames
+		return frames, last_tb
 
 	# def format_exception(self):
 	# 	"""
