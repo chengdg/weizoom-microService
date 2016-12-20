@@ -100,7 +100,8 @@ class Command(BaseCommand):
                 error_text = ERRORS[e.errno]
             except KeyError:
                 error_text = str(e)
-            self.stderr.write("Error: %s" % error_text)
+            self.stdout.write("Error: %s" % error_text)
+            print("Error: %s" % error_text)
             # Need to use an OS exit because sys.exit doesn't work in a thread
             os._exit(1)
         except KeyboardInterrupt:
