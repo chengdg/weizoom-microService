@@ -56,3 +56,6 @@
     
 ```
 
+## 工具组件日志
+### Resource
+见 <https://git2.weizzz.com:84/microservice/eaglet/blob/master/docs/ResourceClient.md#3-%E6%97%A5%E5%BF%97%E8%AF%B4%E6%98%8E>
