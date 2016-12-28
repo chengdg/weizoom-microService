@@ -70,3 +70,9 @@
 
 
 见 <https://git2.weizzz.com:84/microservice/eaglet/blob/master/docs/ResourceClient.md#3-%E6%97%A5%E5%BF%97%E8%AF%B4%E6%98%8E>
+
+
+
+--------------
+
+参考：[日志系统日志规范](https://git2.weizzz.com:84/kbase/kbase/blob/master/dev_ops/ELK_log_collection_standard.md#L1)
