@@ -1,8 +1,9 @@
 # eaglet日志介绍
 ## Web框架日志
 ### CALL_API
-类型：CALL_API
-含义：记录每次HTTP请求的请求和响应信息
+类型：CALL_API  
+含义：记录**接收**的HTTP请求请求参数和响应内容  
+是否使用watchdog： 是  
 格式：
 ```
 "app":"",	# app
@@ -13,8 +14,9 @@
 ```
 
 ### Uncaught_Exception
-类型：Uncaught_Exception
-含义：当发生未捕获异常时，会记录异常信息
+类型：Uncaught_Exception  
+含义：当发生未捕获异常时，会记录异常信息  
+是否使用watchdog： 是  
 格式：
 ```
 "exception_id"：“” # 以文件路径和报错行数标记的id
@@ -56,6 +58,15 @@
     
 ```
 
+
+### zipkin
+含义：记录zipkin的性能追踪日志。  
+是否使用watchdog： 否
+
 ## 工具组件日志
 ### Resource
+记录**发送**的HTTP请求请求参数和响应内容  
+是否使用watchdog： 是
+
+
 见 <https://git2.weizzz.com:84/microservice/eaglet/blob/master/docs/ResourceClient.md#3-%E6%97%A5%E5%BF%97%E8%AF%B4%E6%98%8E>
