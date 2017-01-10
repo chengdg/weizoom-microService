@@ -87,7 +87,8 @@ def __watchdog(level, message, log_type, user_id, server_name):
 	if level == DEBUG:
 		logging.debug(message)
 	elif level == INFO:
-		logging.info(message)
+		pass
+		# logging.info(message)
 	elif level == WARNING:
 		logging.warn(message)
 	elif level == ERROR:
