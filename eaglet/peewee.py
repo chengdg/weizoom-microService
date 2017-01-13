@@ -166,10 +166,10 @@ except ImportError:
 #    import MySQLdb as mysql  # prefer the C module.
 #except ImportError:
 try:
-    import pymysql as mysql
+    import MySQLdb as mysql
 except ImportError:
     try:
-        import MySQLdb as mysql
+        import pymysql as mysql
     except ImportError:
         mysql = None
 
@@ -3416,6 +3416,7 @@ class Database(object):
                 if require_commit and self.get_autocommit():
                     self.commit()
             finally:
+                cursor.close()
                 try:
                     f = sys._getframe()
                     f = f.f_back
