@@ -47,6 +47,11 @@ def wapi_log(self, app, resource, method, params, time_in_s, status=0):
 	"""
 	记录WAPI信息，保存到mongo中
 	"""
+	if getattr(settings, 'EAGLET_DISABLE_DUMP_REQ_PARAMS', False):
+		params_text = 'disabled by EAGLET_DISABLE_DUMP_REQ_PARAMS'
+	else:
+		params_text = param_to_text(params)
+			
 	try:
 		if settings.WAPI_LOGGER_ENABLED:
 			#update by bert delete MongAPILogger
@@ -54,10 +59,10 @@ def wapi_log(self, app, resource, method, params, time_in_s, status=0):
 			# if _wapi_logger is None:
 			# 	_wapi_logger = MongoAPILogger()
 			# if settings.MODE == 'develop' or settings.MODE == 'test':
-			logging.info("called WAPI (in {} s): {} {}/{}, param: {}".format(time_in_s, method, app, resource, param_to_text(params)))
+			logging.info("called WAPI (in {} s): {} {}/{}, param: {}".format(time_in_s, method, app, resource, params_text))
 			#return _wapi_logger.log(app, resource, method, morph_params(params), time_in_s, status)
 		else:
-			logging.info("called WAPI (in {} s): {} {}/{}, param: {}".format(time_in_s, method, app, resource, param_to_text(params)))
+			logging.info("called WAPI (in {} s): {} {}/{}, param: {}".format(time_in_s, method, app, resource, params_text))
 		return 'OK'
 	except:
 		logging.error("Failed to send wapi log, retrying.:Cause:\n{}".format(full_stack()))

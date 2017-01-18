@@ -85,7 +85,11 @@ class FalconResource:
 		args['wapi_id'] = req.path + '_' + req.method
 
 		param_args = {}
-		param_args['req_params']= req.params
+		if getattr(settings, 'EAGLET_DISABLE_DUMP_REQ_PARAMS', False):
+			param_args['req_params']= 'disabled by EAGLET_DISABLE_DUMP_REQ_PARAMS'
+		else:
+			param_args['req_params']= req.params
+
 		try:
 			raw_response = wapi_resource.wapi_call(method, app, resource, args, req)
 			if type(raw_response) == tuple:
