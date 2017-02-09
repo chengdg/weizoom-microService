@@ -64,3 +64,4 @@ class ZipkinClient(object):
 			'fZindex': self.fZindex
 		}
 
+zipkinClient = None #init none
