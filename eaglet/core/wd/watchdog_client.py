@@ -57,7 +57,7 @@ class WatchdogClient(object):
 		log = json.dumps({
 			'json_log': message,
 			# 'pson_log': pson.dumps(message, stringify=False)
-			'pson_log': pson.dumps(message, stringify=False)
+			'pson_log': pson.dumps(message)
 		})
 
 		return log
