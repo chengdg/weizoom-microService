@@ -4,6 +4,7 @@ import uuid
 import json
 import logging
 from eaglet.core.exceptionutil import unicode_full_stack
+from eaglet.utils import pson
 
 
 class WatchdogClient(object):
@@ -38,4 +39,6 @@ class WatchdogClient(object):
 			"xmessage": message,  # 兼容elk，字段名不能为message
 			"json_error": err_msg
 		}
-		return json.dumps(message)
+
+		log = json.dumps(message) + ":::" + pson.dumps(message)
+		return log
