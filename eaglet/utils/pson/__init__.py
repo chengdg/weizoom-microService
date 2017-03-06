@@ -56,4 +56,5 @@ def dumps(data):
 
 	result = get_path_value(data)
 
-	return ("{" + ",".join(result) + "}").replace('"', '')
+	# return ("{" + ",".join(result) + "}").replace('"', '')
+	return ("{" + ",".join(result) + "}")
