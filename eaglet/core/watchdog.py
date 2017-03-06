@@ -21,8 +21,13 @@ from eaglet.core.wd.watchdog_client import WatchdogClient
 from datetime import datetime, date
 from eaglet.utils import settings_utils
 
+# logging.basicConfig(level=logging.INFO,
+#                     format='%(asctime)s %(levelname)s : %(message)s',
+#                     datefmt='%Y-%m-%d %H:%M:%S'
+#                     )
+
 logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(levelname)s : %(message)s',
+                    format='%(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S'
                     )
 
@@ -84,10 +89,10 @@ def __watchdog(level, message, log_type):
 	"""
 
 	if hasattr(watchdog_client, 'watchdogClient') and watchdog_client.watchdogClient:
-		message = watchdog_client.watchdogClient.getMessge(message, log_type)
+		message = watchdog_client.watchdogClient.getMessge(level, message, log_type)
 	else:
 		watchdog_client.watchdogClient = watchdog_client.WatchdogClient(service_name)
-		message = watchdog_client.watchdogClient.getMessge(message, log_type)
+		message = watchdog_client.watchdogClient.getMessge(level, message, log_type)
 
 	if level == DEBUG:
 		logging.debug(message)

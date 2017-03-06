@@ -17,12 +17,15 @@ def is_base_type(obj):
 		                  type(None), float, basestring, Decimal, datetime.datetime, datetime.date, datetime.time))
 
 
-def convert2string(obj):
-	return json.dumps(obj)
+def convert2string(obj, stringify):
+	if stringify:
+		return json.dumps(obj)
+	else:
+		return obj
 
-def get_path_value(data):
+def get_path_value(data, stringify):
 	def _get_format_str(path, v):
-		return "{}={}".format(path, convert2string(v))
+		return "{}={}".format(path, convert2string(v, stringify))
 
 	def _recursive_get(data, res, path='/'):
 
@@ -52,9 +55,9 @@ def get_path_value(data):
 	return result
 
 
-def dumps(data):
+def dumps(data, stringify=True):
 
-	result = get_path_value(data)
+	result = get_path_value(data, stringify=stringify)
 
 	# return ("{" + ",".join(result) + "}").replace('"', '')
 	return ("{" + ",".join(result) + "}")
