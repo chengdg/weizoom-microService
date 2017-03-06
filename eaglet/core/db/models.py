@@ -2,7 +2,7 @@
 
 import eaglet.peewee as peewee
 # from playhouse.db_url import connect
-from eaglet.core.hack_peewee import connect
+from eaglet.core.hack_peewee import connect, ReadSlaveModel
 import settings
 import datetime
 
@@ -15,11 +15,23 @@ if DB['NAME']:
 	db = connect(DB_URL)
 	db.connect()
 
+
+if "slave" in settings.DATABASES:
+	SLAVE_DB = settings.DATABASES['slave']
+
+	SLAVE_DB_URL = '%s://%s:%s@%s/%s' % (SLAVE_DB['ENGINE'], SLAVE_DB['USER'], SLAVE_DB['PASSWORD'], \
+		"%s:%s" % (SLAVE_DB['HOST'], SLAVE_DB['PORT']) if len(SLAVE_DB['PORT'])>0 else SLAVE_DB['HOST'], SLAVE_DB['NAME'])
+	slave_db = connect(SLAVE_DB_URL)
+	slave_db.connect()
+	read_slaves = (slave_db, )
+else:
+	read_slaves = None
 #print(peewee.__version__)
 
-class Model(peewee.Model):
+class Model(ReadSlaveModel):
 	class Meta:
 		database = db
+		read_slaves = read_slaves
 
 	@classmethod
 	def from_dict(cls, dict):
