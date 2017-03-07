@@ -31,13 +31,19 @@ logging.basicConfig(level=logging.INFO,
                     datefmt='%Y-%m-%d %H:%M:%S'
                     )
 
-DEBUG = 1
-INFO = 2
-WARNING = 3
-ERROR = 4
-# TODO delete
-ALERT = 5
-CRITICAL = 6
+# DEBUG = 1
+# INFO = 2
+# WARNING = 3
+# ERROR = 4
+# # TODO delete
+# ALERT = 5
+# CRITICAL = 6
+DEBUG = "DEBUG"
+INFO = "INFO"
+WARNING = "WARNING"
+ERROR = "ERROR"
+ALERT = "ALERT"
+CRITICAL = "CRITICAL"
 
 DEFAULT_LOG_TYPE = 'CUSTOM'
 
