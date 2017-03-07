@@ -17,6 +17,7 @@ import json
 import decimal
 from eaglet.core.wd import watchdog_client
 from eaglet.core.wd.watchdog_client import WatchdogClient
+import uuid
 
 from datetime import datetime, date
 from eaglet.utils import settings_utils
@@ -93,12 +94,12 @@ def __watchdog(level, message, log_type):
 	@param[in] log_type 日志类型，如WEB, API, H5
 	@param[in] user_id 系统账号的user id，用来追踪是哪个用户的系统中出的问题
 	"""
-
+	log_id = str(uuid.uuid1())
 	if hasattr(watchdog_client, 'watchdogClient') and watchdog_client.watchdogClient:
-		message = watchdog_client.watchdogClient.getMessge(level, message, log_type)
+		message = watchdog_client.watchdogClient.getMessge(level, message, log_type, log_id)
 	else:
 		watchdog_client.watchdogClient = watchdog_client.WatchdogClient(service_name)
-		message = watchdog_client.watchdogClient.getMessge(level, message, log_type)
+		message = watchdog_client.watchdogClient.getMessge(level, message, log_type, log_id)
 
 	if level == DEBUG:
 		logging.debug(message)

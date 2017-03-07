@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import uuid
 import json
 import logging
 from eaglet.core.exceptionutil import unicode_full_stack
 from eaglet.utils import pson
 import datetime
+
 
 class WatchdogClient(object):
 	"""docstring for WatchdogClient"""
@@ -16,13 +16,12 @@ class WatchdogClient(object):
 		self.msg = '[watchdog:python]'
 		self.service_name = service_name
 		self.type = "api"
-		self.id = str(uuid.uuid1())
 
-	def getMessge(self, level, message, log_type):
+	def getMessge(self, level, message, log_type, log_id):
 		self.index += 1
 		if log_type:
 			self.log_type = log_type
-
+		self.log_id = log_id
 		try:
 			err_msg = ''
 			json.dumps(message)
@@ -44,7 +43,7 @@ class WatchdogClient(object):
 			"msg": self.msg,
 			"service_name": self.service_name,
 			"type": self.log_type,
-			"uuid": self.id,
+			"uuid": self.log_id,
 			"index": self.index,
 			"xmessage": message,  # 兼容elk，字段名不能为message
 			"json_error": err_msg,
