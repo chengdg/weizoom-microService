@@ -235,7 +235,8 @@ class ExceptionReporter(object):
 		c = OrderedDict((
 			('summary', summary),
 			('system_info', system_info),
-			('frames', frames)
+			# ('frames', frames)
+			('last_frame', last_frame)
 		))
 		# Check whether exception info is available
 
