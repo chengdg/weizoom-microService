@@ -82,7 +82,7 @@ class Inner(object):
 		self.access_token = None
 		self.service = service
 		self.gateway_host = gateway_host
-
+		self.__json_data = None
 		self.service_map = config['service_map']
 		self.api_scheme = config['api_scheme']
 
@@ -167,6 +167,7 @@ class Inner(object):
 			if resp.status_code == 200:
 
 				json_data = json.loads(resp.text)
+				self.__json_data = json_data
 				code = json_data['code']
 
 				if code == 200 or code == 500:
@@ -207,7 +208,7 @@ class Inner(object):
 
 		if resp:
 			msg['http_code'] = resp.status_code
-			msg['resp_text'] = resp.text
+			msg['resp_text'] = self.__json_data
 		else:
 			msg['http_code'] = ''
 			msg['resp_text'] = ''
