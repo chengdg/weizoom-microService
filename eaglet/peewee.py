@@ -165,11 +165,19 @@ except ImportError:
 #try:
 #    import MySQLdb as mysql  # prefer the C module.
 #except ImportError:
+# try:
+#     import pymysql as mysql
+# except ImportError:
+#     try:
+#         import MySQLdb as mysql
+#     except ImportError:
+#         mysql = None
+
 try:
-    import pymysql as mysql
+    import MySQLdb as mysql
 except ImportError:
     try:
-        import MySQLdb as mysql
+        import pymysql as mysql
     except ImportError:
         mysql = None
 
