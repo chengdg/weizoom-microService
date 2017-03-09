@@ -17,11 +17,11 @@ def is_base_type(obj):
 
 
 def convert2string(obj, stringify):
-	if stringify:
-		return json.dumps(obj)
-	else:
-		return obj
-
+	# if stringify:
+	# 	return json.dumps(obj)
+	# else:
+	# 	return obj
+	return json.dumps(obj)
 
 def get_path_value(data, stringify):
 	def _get_format_str(path, v):
