@@ -25,7 +25,14 @@ def convert2string(obj, stringify):
 
 def get_path_value(data, stringify):
 	def _get_format_str(path, v):
-		return "{}=>{}".format(path, convert2string(v, stringify))
+		try:
+			return "{}=>{}".format(path, convert2string(v, stringify))
+		except:
+
+			print('-------888----')
+			print(path,convert2string(v, stringify))
+			print('-------888----')
+			return 'decode_error=>=>'
 
 	def _recursive_get(data, res, path='/'):
 
