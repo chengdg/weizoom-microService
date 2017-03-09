@@ -84,12 +84,6 @@ class FalconResource:
 		args.update(req.context)
 		args['wapi_id'] = req.path + '_' + req.method
 
-		param_args = {}
-		if getattr(settings, 'EAGLET_DISABLE_DUMP_REQ_PARAMS', False):
-			param_args['req_params']= 'disabled by EAGLET_DISABLE_DUMP_REQ_PARAMS'
-		else:
-			param_args['req_params']= req.params
-
 		try:
 			raw_response = wapi_resource.wapi_call(method, app, resource, args, req)
 			if type(raw_response) == tuple:
@@ -119,12 +113,25 @@ class FalconResource:
 				print('**********Uncaught_Exception**********\n')
 		resp.body = json.dumps(response, default=_default)
 
-		param_args['app'] = app
-		param_args['resource'] = resource
-		param_args['method'] = method
-		param_args['response'] = json.loads(resp.body)
-		param_args['response'] = 'stop record' # 量太大，先不记录了
-		watchdog.info(param_args, "CALL_API")
+		# 记录RESOURCE_ACCESS日志
+		resource_access_log = {}
+		if getattr(settings, 'EAGLET_DISABLE_DUMP_REQ_PARAMS', False):
+			resource_access_log['params'] = 'disabled by EAGLET_DISABLE_DUMP_REQ_PARAMS'
+		else:
+			resource_access_log['params'] = req.params
+
+		resource_access_log['app'] = app
+		resource_access_log['resource'] = resource
+		resource_access_log['method'] = method
+		if method == 'get':
+			resource_access_log['response'] = {
+				'code': response['code'],
+				'data': 'stop_record'
+			}
+		else:
+			resource_access_log['response'] = json.loads(resp.body)
+
+		watchdog.info(resource_access_log, "RESOURCE_ACCESS")
 
 		if getattr(settings, 'DUMP_API_CALL_RESULT', True):
 			if response['code'] != 200:

@@ -15,3 +15,7 @@ def get_service_name():
 		return settings.service_name
 	else:
 		return 'unknown'
+
+
+def get_settings():
+	return settings

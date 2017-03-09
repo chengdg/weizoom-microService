@@ -39,7 +39,7 @@ import logging
 #
 # 	return wrapped
 
-CALL_SERVICE_WATCHDOG_TYPE = "call_service_resource"
+CALL_SERVICE_WATCHDOG_TYPE = "USE_RESOURCE"
 DEFAULT_TIMEOUT = 30
 DEFAULT_GATEWAY_HOST = 'http://api.weapp.com'
 
@@ -82,10 +82,10 @@ class Inner(object):
 		self.access_token = None
 		self.service = service
 		self.gateway_host = gateway_host
-
+		self.__json_data = None
 		self.service_map = config['service_map']
 		self.api_scheme = config['api_scheme']
-
+		self.target_resource = ''
 		self.enable_api_auth = config['enable_api_auth']
 		self.app_key = config['app_key']
 		self.app_secret = config['app_secret']
@@ -122,7 +122,7 @@ class Inner(object):
 		resource_path = resource.replace('.', '/')
 
 		service_name = self.service_map.get(self.service, self.service)
-
+		self.target_service = service_name
 		if service_name:
 			base_url = '%s/%s/%s/' % (host, service_name, resource_path)
 		else:
@@ -167,6 +167,7 @@ class Inner(object):
 			if resp.status_code == 200:
 
 				json_data = json.loads(resp.text)
+				self.__json_data = json_data
 				code = json_data['code']
 
 				if code == 200 or code == 500:
@@ -194,20 +195,23 @@ class Inner(object):
 
 	def __log(self, is_success, url, params, method, failure_type='', failure_msg=''):
 		msg = {
-			'is_success': is_success,
 			'url': url,
 			'params': params,
 			'method': method,
+			'resource': self.target_resource,
+			'target_service': self.target_service,
 			'failure_type': failure_type,
 			'failure_msg': failure_msg,
-
 		}
 
 		resp = self.__resp
 
 		if resp:
-			msg['http_code'] = resp.status_code
-			msg['resp_text'] = resp.text
+			if method == 'get':
+				msg['http_code'] = 'stop_record'
+			else:
+				msg['http_code'] = resp.status_code
+			msg['resp_text'] = self.__json_data
 		else:
 			msg['http_code'] = ''
 			msg['resp_text'] = ''
@@ -215,7 +219,7 @@ class Inner(object):
 		if is_success:
 			watchdog.info(msg, CALL_SERVICE_WATCHDOG_TYPE, server_name=self.service)
 		else:
-			watchdog.alert(msg, CALL_SERVICE_WATCHDOG_TYPE, server_name=self.service)
+			watchdog.CRITICAL(msg, CALL_SERVICE_WATCHDOG_TYPE, server_name=self.service)
 
 
 class Resource(object):
