@@ -119,14 +119,14 @@ class FalconResource:
 				print('**********Uncaught_Exception**********\n')
 		resp.body = json.dumps(response, default=_default)
 
-		param_args['app'] = app
-		param_args['resource'] = resource
-		param_args['method'] = method
-		param_args['response'] = json.loads(resp.body)
-		param_args['response'] = 'stop record' # 量太大，先不记录了
-		watchdog.info(param_args, "CALL_API")
-
 		if getattr(settings, 'DUMP_API_CALL_RESULT', True):
+			param_args['app'] = app
+			param_args['resource'] = resource
+			param_args['method'] = method
+			param_args['response'] = json.loads(resp.body)
+			param_args['response'] = 'stop record' # 量太大，先不记录了
+			watchdog.info(param_args, "CALL_API")
+			
 			if response['code'] != 200:
 				print response['innerErrMsg']
 

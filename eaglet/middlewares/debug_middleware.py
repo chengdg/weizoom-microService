@@ -15,7 +15,6 @@ class QueryMonitorMiddleware(object):
 		#import resource
 		#resource.indent = 0
 		
-		print 'empty peewee.QUERIES'
 		peewee.QUERIES = []
 		cache_utils.clear_queries()
 
