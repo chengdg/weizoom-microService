@@ -85,7 +85,7 @@ class Inner(object):
 		self.__json_data = None
 		self.service_map = config['service_map']
 		self.api_scheme = config['api_scheme']
-		self.target_resource = ''
+		self.__resource = ''
 		self.enable_api_auth = config['enable_api_auth']
 		self.app_key = config['app_key']
 		self.app_secret = config['app_secret']
@@ -116,13 +116,13 @@ class Inner(object):
 
 		@return is_success,code,data
 		"""
-
+		self.__resource = resource
 		host = self.gateway_host
 
 		resource_path = resource.replace('.', '/')
 
 		service_name = self.service_map.get(self.service, self.service)
-		self.target_service = service_name
+		self.__target_service = service_name
 		if service_name:
 			base_url = '%s/%s/%s/' % (host, service_name, resource_path)
 		else:
@@ -198,8 +198,8 @@ class Inner(object):
 			'url': url,
 			'params': params,
 			'method': method,
-			'resource': self.target_resource,
-			'target_service': self.target_service,
+			'resource': self.__resource,
+			'target_service': self.__target_service,
 			'failure_type': failure_type,
 			'failure_msg': failure_msg,
 		}
