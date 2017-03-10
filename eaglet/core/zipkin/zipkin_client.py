@@ -45,7 +45,9 @@ class ZipkinClient(object):
 		self.isCallDownstream = isCallDownstream
 		data = self.getData()
 		if IS_DEPLOY:
-			logging.info(json.dumps(data))
+			# logging.info(json.dumps(data))
+			# 暂时关闭zipkin日志
+			pass
 
 
 	def getData(self):
