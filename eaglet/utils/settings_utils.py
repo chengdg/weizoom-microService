@@ -13,6 +13,8 @@ except:
 def get_service_name():
 	if settings and hasattr(settings, 'service_name'):
 		return settings.service_name
+	elif settings and hasattr(settings, 'SERVICE_NAME'):
+		return settings.SERVICE_NAME
 	else:
 		return 'unknown'
 
