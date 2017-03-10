@@ -51,12 +51,12 @@ class WatchdogClient(object):
 			"datetime": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 		}
 
-		log = json.dumps(message) + ":::" + pson.dumps(message)
+		# log = json.dumps(message) + ":::" + pson.dumps(message)
 
 		# log = json.dumps({
 		# 	'json_log': message,
 		# 	# 'pson_log': pson.dumps(message, stringify=False)
 		# 	'pson_log': pson.dumps(message)
 		# })
-
+		log = pson.dumps(message)
 		return log
