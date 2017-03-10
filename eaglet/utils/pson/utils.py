@@ -69,7 +69,7 @@ def parse(pson_string):
 	patch = []
 
 	for piece in pieces:
-		path = piece.split('=>')[0]
+		path = json.loads(piece.split('=>')[0])
 		value = json.loads(piece.split('=>')[1])
 		patch.append({
 			'add': path,
