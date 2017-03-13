@@ -8,9 +8,19 @@ import datetime
 import traceback
 import sys
 
+from falcon import Request
+
 
 def get_req_data(req):
-	return req.params
+	if isinstance(req, Request):
+		return req.params
+	else:
+		return {
+			'get_dict': req.GET,
+			'post_dict': req.POST,
+			'method': req.method,
+			'path': req.path
+		}
 
 
 def full_stack():
