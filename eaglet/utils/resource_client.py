@@ -219,7 +219,7 @@ class Inner(object):
 		if is_success:
 			watchdog.info(msg, CALL_SERVICE_WATCHDOG_TYPE)
 		else:
-			watchdog.CRITICAL(msg, CALL_SERVICE_WATCHDOG_TYPE)
+			watchdog.critical(msg, CALL_SERVICE_WATCHDOG_TYPE)
 
 
 class Resource(object):
