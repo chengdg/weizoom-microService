@@ -20,7 +20,6 @@ from eaglet.core.wd.watchdog_client import WatchdogClient
 import uuid
 
 from datetime import datetime, date
-from eaglet.utils import settings_utils
 
 # logging.basicConfig(level=logging.INFO,
 #                     format='%(asctime)s %(levelname)s : %(message)s',
@@ -84,7 +83,19 @@ def _default(obj):
 		return '<object>'
 
 
-service_name = None
+try:
+	import settings
+except ImportError:
+
+	try:
+		from django.conf import settings
+	except:
+		settings = None
+
+if settings and hasattr(settings, 'SERVICE_NAME'):
+	service_name = settings.SERVICE_NAME
+else:
+	service_name = 'unknown'
 
 
 def __watchdog(level, message, log_type):
@@ -94,9 +105,6 @@ def __watchdog(level, message, log_type):
 	@param[in] log_type 日志类型，如WEB, API, H5
 	@param[in] user_id 系统账号的user id，用来追踪是哪个用户的系统中出的问题
 	"""
-	global service_name
-	if not service_name:
-		service_name = settings_utils.get_service_name()
 	log_id = str(uuid.uuid1())
 	if hasattr(watchdog_client, 'watchdogClient') and watchdog_client.watchdogClient:
 		message = watchdog_client.watchdogClient.getMessge(level, message, log_type, log_id)
