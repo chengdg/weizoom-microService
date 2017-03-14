@@ -3,7 +3,7 @@
 
 try:
 	import settings
-except:
+except ImportError:
 	try:
 		from django.conf import settings
 	except:
