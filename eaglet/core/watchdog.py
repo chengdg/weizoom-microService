@@ -83,20 +83,7 @@ def _default(obj):
 		return '<object>'
 
 
-try:
-	import settings
-except ImportError:
-
-	try:
-		from django.conf import settings
-	except:
-		settings = None
-
-if settings and hasattr(settings, 'SERVICE_NAME'):
-	service_name = settings.SERVICE_NAME
-else:
-	service_name = 'unknown'
-
+service_name = None
 
 def __watchdog(level, message, log_type):
 	"""
@@ -105,6 +92,21 @@ def __watchdog(level, message, log_type):
 	@param[in] log_type 日志类型，如WEB, API, H5
 	@param[in] user_id 系统账号的user id，用来追踪是哪个用户的系统中出的问题
 	"""
+
+	try:
+		import settings
+	except ImportError:
+
+		try:
+			from django.conf import settings
+		except:
+			settings = None
+
+	if settings and hasattr(settings, 'SERVICE_NAME'):
+		service_name = settings.SERVICE_NAME
+	else:
+		service_name = 'unknown'
+
 	log_id = str(uuid.uuid1())
 	if hasattr(watchdog_client, 'watchdogClient') and watchdog_client.watchdogClient:
 		message = watchdog_client.watchdogClient.getMessge(level, message, log_type, log_id)
