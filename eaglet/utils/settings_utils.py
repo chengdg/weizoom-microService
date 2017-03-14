@@ -4,6 +4,8 @@
 try:
 	import settings
 except ImportError:
+	# from eaglet.core.exceptionutil import unicode_full_stack
+	# print(unicode_full_stack())
 	try:
 		from django.conf import settings
 	except:
