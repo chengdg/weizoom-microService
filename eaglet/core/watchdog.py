@@ -92,20 +92,21 @@ def __watchdog(level, message, log_type):
 	@param[in] log_type 日志类型，如WEB, API, H5
 	@param[in] user_id 系统账号的user id，用来追踪是哪个用户的系统中出的问题
 	"""
-
-	try:
-		import settings
-	except ImportError:
-
+	global service_name
+	if not service_name:
 		try:
-			from django.conf import settings
-		except:
-			settings = None
+			import settings
+		except ImportError:
 
-	if settings and hasattr(settings, 'SERVICE_NAME'):
-		service_name = settings.SERVICE_NAME
-	else:
-		service_name = 'unknown'
+			try:
+				from django.conf import settings
+			except:
+				settings = None
+
+		if settings and hasattr(settings, 'SERVICE_NAME'):
+			service_name = settings.SERVICE_NAME
+		else:
+			service_name = 'unknown'
 
 	log_id = str(uuid.uuid1())
 	if hasattr(watchdog_client, 'watchdogClient') and watchdog_client.watchdogClient:
