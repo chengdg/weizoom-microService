@@ -84,7 +84,7 @@ def _default(obj):
 		return '<object>'
 
 
-service_name = settings_utils.get_service_name()
+service_name = None
 
 
 def __watchdog(level, message, log_type):
@@ -94,6 +94,9 @@ def __watchdog(level, message, log_type):
 	@param[in] log_type 日志类型，如WEB, API, H5
 	@param[in] user_id 系统账号的user id，用来追踪是哪个用户的系统中出的问题
 	"""
+	global service_name
+	if not service_name:
+		service_name = settings_utils.get_service_name()
 	log_id = str(uuid.uuid1())
 	if hasattr(watchdog_client, 'watchdogClient') and watchdog_client.watchdogClient:
 		message = watchdog_client.watchdogClient.getMessge(level, message, log_type, log_id)
