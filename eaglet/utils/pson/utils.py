@@ -55,8 +55,10 @@ def get_path_value(data, stringify):
 					res.append(_get_format_str(delim.join([path, str(i)]), v))
 				else:
 					_recursive_get(v, res, delim.join([path, str(i)]))
+		elif is_base_type(data):
+			res.append(_get_format_str('/not_dict', data))
 		else:
-			res.append("ERROR")
+			res.append(_get_format_str("/ERROR", type(data)))
 
 	result = []
 	_recursive_get(data, result)
