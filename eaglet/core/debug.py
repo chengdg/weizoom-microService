@@ -203,7 +203,7 @@ class ExceptionReporter(object):
 	def get_exception_data(self):
 		"Return a Context instance containing traceback information."
 
-		frames, last_tb = self.get_traceback_frames()
+		frames, last_tb, last_business_frame = self.get_traceback_frames()
 		for i, frame in enumerate(frames):
 			if 'vars' in frame:
 				frame['vars'] = [{'key': k, 'value': force_text(v)} for k, v in frame['vars'] if
@@ -232,7 +232,7 @@ class ExceptionReporter(object):
 
 		last_frame = frames[-1]
 
-		self.exception_id = last_frame['filename'] + '-' + str(last_frame['lineno'])
+		self.exception_id = last_business_frame['filename'] + '-' + str(last_business_frame['lineno'])
 
 		summary = OrderedDict((
 			('exception_type', self.exc_type.__name__ if self.exc_type else ''),
@@ -247,7 +247,9 @@ class ExceptionReporter(object):
 			('summary', summary),
 			('system_info', system_info),
 			# ('frames', frames)
-			('last_frame', last_frame)
+			('last_frame', last_frame),
+			('last_business_frame', last_business_frame),
+
 		))
 		# Check whether exception info is available
 
@@ -306,6 +308,7 @@ class ExceptionReporter(object):
 		frames = []
 		tb = self.tb
 		last_tb = tb
+		last_business_frame = None # 业务代码里的最后一个frame
 		while tb is not None:
 			# Support for __traceback_hide__ which is used by a few libraries
 			# to hide internal frames.
@@ -319,7 +322,7 @@ class ExceptionReporter(object):
 			module_name = tb.tb_frame.f_globals.get('__name__') or ''
 			pre_context_lineno, pre_context, context_line, post_context = self._get_lines_from_file(filename, lineno, 7,
 			                                                                                        loader, module_name)
-			frames.append(OrderedDict([
+			frame_info = OrderedDict([
 				# 'tb': tb,
 				('filename', filename),
 				('function', function),
@@ -328,11 +331,16 @@ class ExceptionReporter(object):
 				('lineno', tb.tb_lineno),
 				('context_line', context_line.replace("\t", "    ")),
 				# ('post_context', post_context),
-			]))
+			])
+
+			if 'site-packages' not in filename:
+				last_business_frame = frame_info
+
+			frames.append(frame_info)
 			last_tb = tb
 			tb = tb.tb_next
 
-		return frames, last_tb
+		return frames, last_tb, last_business_frame
 
 	# def format_exception(self):
 	# 	"""
