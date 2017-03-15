@@ -100,14 +100,15 @@ def force_text(s, encoding='utf-8', strings_only=False, errors='strict'):
 			# errors), so that if s is a SafeBytes, it ends up being a
 			# SafeText at the end.
 			s = s.decode(encoding, errors)
-	except UnicodeDecodeError as e:
+	except Exception as e:
 
 		# If we get to here, the caller has passed in an Exception
 		# subclass populated with non-ASCII bytestring data without a
 		# working unicode method. Try to handle this without raising a
 		# further exception by individually forcing the exception args
 		# to unicode.
-		s = 'force_text with UnicodeDecodeError'
+
+		s = 'force_text with UnicodeDecodeError:{}......traceback:{}'.format(type(s), unicode_full_stack())
 	return s
 
 
