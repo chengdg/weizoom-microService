@@ -251,7 +251,7 @@ class ExceptionReporter(object):
 		))
 		# Check whether exception info is available
 
-		c['frames'] = frames
+		# c['frames'] = frames
 
 		# if frames:
 		# 	c['lastframe'] = frames[-1]
