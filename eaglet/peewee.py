@@ -378,7 +378,8 @@ def django_where_returns_clone(func):
                 elif op == '__gte':
                     args.append(db_field.__ge__(value))
                 elif op == '__notin':
-                    args.append(db_field.not_in(value))
+                    if len(value) > 0:
+                        args.append(db_field.not_in(value))
                 elif op == '__icontains':
                     args.append(db_field.contains(value))
                 elif op == '__range':
