@@ -12,15 +12,24 @@ from falcon import Request
 
 
 def get_req_data(req):
-	if isinstance(req, Request):
-		return req.params
+	if req:
+		if isinstance(req, Request):
+			return req.params
+		else:
+			return {
+				'get_dict': req.GET,
+				'post_dict': req.POST,
+				'method': req.method,
+				'path': req.path
+			}
 	else:
-		return {
-			'get_dict': req.GET,
-			'post_dict': req.POST,
-			'method': req.method,
-			'path': req.path
-		}
+		return {}
+
+def get_message_data(message):
+	if message:
+		return message
+	else:
+		return {}
 
 
 def full_stack():
@@ -41,15 +50,18 @@ def unicode_full_stack():
 	return full_stack().decode('utf-8')
 
 
-def get_uncaught_exception_data(req):
+def get_uncaught_exception_data(req=None, message=None):
 	reporter = ExceptionReporter(*sys.exc_info())
-	try:
-		exception_data = reporter.get_exception_data()
-	except:
-		exception_data = unicode_full_stack()
+	# try:
+	# 	exception_data = reporter.get_exception_data()
+	# except BaseException as e:
+	# 	exception_data = unicode_full_stack()
+	# 	raise e
+	exception_data = reporter.get_exception_data()
 	data = OrderedDict((
 		('exception_id', reporter.exception_id),
 		('req_data', get_req_data(req)),
+		('message_data', get_message_data(message)),
 		('exception_data', exception_data),
 		('traceback', unicode_full_stack()),
 	))
@@ -138,26 +150,6 @@ def get_safe_settings():
 	return ''
 
 
-# def force_escape(value):
-# 	"""
-# 	Escapes a string's HTML. This returns a new string containing the escaped
-# 	characters (as opposed to "escape", which marks the content for later
-# 	possible escaping).
-# 	"""
-# 	return value
-
-
-# def pprint(value):
-# 	"""A wrapper around pprint.pprint -- for debugging, really."""
-# 	try:
-# 		return pformat(value)
-# 		# return value
-# 	except Exception as e:
-# 		return "Error in formatting: %s" % force_text(e, errors="replace")
-
-
-
-
 class ExceptionReporter(object):
 	"""
 	A class to organize and coordinate reporting on exceptions.
@@ -210,25 +202,19 @@ class ExceptionReporter(object):
 				                 (not k.startswith("__") and not k.endswith("__") and k != 'response')]
 			frames[i] = frame
 
-		# unicode_hint = ''
-		# if self.exc_type and issubclass(self.exc_type, UnicodeError):
-		# 	start = getattr(self.exc_value, 'start', None)
-		# 	end = getattr(self.exc_value, 'end', None)
-		# 	if start is not None and end is not None:
-		# 		unicode_str = self.exc_value.args[1]
-		# 		unicode_hint = smart_text(unicode_str[max(start - 5, 0):min(end + 5, len(unicode_str))], 'ascii',
-		# 		                          errors='replace')
-		bussines_data = {}
-		if last_tb:
-			bussines_data = self._get_bussines_data(last_tb)
 
-		system_info = OrderedDict((
-			('sys_executable', sys.executable),
-			('sys_version_info', ('%d.%d.%d' % sys.version_info[0:3])),
-			('server_time', str(datetime.datetime.now()))
-			# ('sys_path', sys.path)
 
-		))
+		# bussines_data = {}
+		# if last_tb:
+		# 	bussines_data = self._get_bussines_data(last_tb)
+
+		# system_info = OrderedDict((
+		# 	('sys_executable', sys.executable),
+		# 	('sys_version_info', ('%d.%d.%d' % sys.version_info[0:3])),
+		# 	('server_time', str(datetime.datetime.now()))
+		# 	# ('sys_path', sys.path)
+		#
+		# ))
 
 		last_frame = frames[-1]
 
@@ -239,13 +225,13 @@ class ExceptionReporter(object):
 			('exception_value', smart_text(self.exc_value, errors='replace') if self.exc_value else ''),
 			('filename', last_frame['filename']),
 			('line', last_frame['context_line']),
-			('lineno', last_frame['lineno']),
-			('bussines_data', bussines_data)
+			('lineno', last_frame['lineno'])
+			# ('bussines_data', bussines_data)
 		))
 
 		c = OrderedDict((
 			('summary', summary),
-			('system_info', system_info),
+			# ('system_info', system_info),
 			# ('frames', frames)
 			('last_frame', last_frame),
 			('last_business_frame', last_business_frame),
@@ -333,7 +319,7 @@ class ExceptionReporter(object):
 				# ('post_context', post_context),
 			])
 
-			if 'site-packages' not in filename:
+			if 'site-packages' not in filename or last_business_frame is None:
 				last_business_frame = frame_info
 
 			frames.append(frame_info)
