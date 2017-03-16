@@ -16,7 +16,12 @@ from eaglet.utils.common_util import is_base_type
 def get_req_data(req):
 	if req:
 		if isinstance(req, Request):
-			return req.params
+			return {
+				'params': req.params,
+				'method': req.method,
+				'path': req.path
+			}
+
 		else:
 			return {
 				'get_dict': req.GET,
@@ -26,6 +31,7 @@ def get_req_data(req):
 			}
 	else:
 		return {}
+
 
 def get_message_data(message):
 	if message:
@@ -201,10 +207,9 @@ class ExceptionReporter(object):
 		for i, frame in enumerate(frames):
 			if 'vars' in frame:
 				frame['vars'] = [{'key': k, 'value': force_text(v)} for k, v in frame['vars'] if
-				                 (not k.startswith("__") and not k.endswith("__") and k != 'response') and is_base_type(v)]
+				                 (not k.startswith("__") and not k.endswith("__") and k != 'response') and is_base_type(
+					                 v)]
 			frames[i] = frame
-
-
 
 		# bussines_data = {}
 		# if last_tb:
@@ -296,7 +301,7 @@ class ExceptionReporter(object):
 		frames = []
 		tb = self.tb
 		last_tb = tb
-		last_business_frame = None # 业务代码里的最后一个frame
+		last_business_frame = None  # 业务代码里的最后一个frame
 		while tb is not None:
 			# Support for __traceback_hide__ which is used by a few libraries
 			# to hide internal frames.
