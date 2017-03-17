@@ -15,7 +15,7 @@ class WatchdogClient(object):
 		self.index = 0
 		self.msg = '[watchdog:python]'
 		self.service_name = service_name
-		self.type = "api"
+		self.version = "1.0.1"
 
 	def getMessge(self, level, message, log_type, log_id):
 		self.index += 1
@@ -48,7 +48,8 @@ class WatchdogClient(object):
 			"xmessage": message,  # 兼容elk，字段名不能为message
 			"json_error": err_msg,
 			"level": level,
-			"datetime": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+			"datetime": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+			'version': self.version
 		}
 
 		# log = json.dumps(message) + ":::" + pson.dumps(message)
